@@ -1,0 +1,16 @@
+name: cse-6242-project
+channels:
+    - conda-forge
+    - anaconda
+    - defaults
+dependencies:
+    - python=3.11
+    - pandas
+    - numpy
+    - jupyter
+    - matplotlib
+    - seaborn
+    - hdf5
+    - pytables
+    - scikit-learn
+    - spotipy 
