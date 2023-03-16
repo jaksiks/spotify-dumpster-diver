@@ -130,3 +130,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Config files and return JSONs
+token_info.json
+config.txt
+recently_played_songs.xlsx
+~$recently_played_songs.xlsx
