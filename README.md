@@ -36,5 +36,15 @@ conda env export --from-history>environment.yml
 
 # Working with Django
 
+## Start Here
+
 * [Intro Tutorial](https://docs.djangoproject.com/en/4.1/intro/tutorial01/#)
-* 
+
+## Start Your Local Server
+1. Navigate to ```/cse-6242-project/diver``` in a terminal window >> This is the main Django app directory
+2. Run ```python manage.py runserver``` >> This will start a web server locally at http://127.0.0.1:8000/
+    * Recommend  opening in Chrome Incognito Mode
+    * This will "take over" your existing terminal session; if you want to interact with git, etc. while your local server is running, you can open another terminal window
+
+
+
