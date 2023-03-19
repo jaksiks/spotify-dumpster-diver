@@ -7,10 +7,11 @@ from spotipy.oauth2 import SpotifyOAuth
 class SpotifyWrapper:
     def __init__(self, config_file: str = "config.yml"):
         # Read credentials from config.yml
-        # spotify:
-        #   SPOTIPY_CLIENT_ID: <ID>
-        #   SPOTIPY_CLIENT_SECRET: <ID>
-        #   SPOTIPY_REDIRECT_URI: <ID>
+        #spotify:
+        #    id: "<id>"
+        #    client_id: "<client_id>" 
+        #    client_secret: "<client_secret>"
+        #    redirect_uri: "http://localhost:8888/callback" <-- Make sure to add this to your Spotify Client!
         with open(config_file, 'r') as f:
             self.config = yaml.safe_load(f)
 
