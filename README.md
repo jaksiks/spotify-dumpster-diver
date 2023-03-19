@@ -53,4 +53,6 @@ conda env export --from-history>environment.yml
 * ```/diver/diver``` >> App settings and routes
 * ```/diver/dumpster_diver``` >> This is where most people will spend their time; pages ("views"), assets (JS), etc.
 
+## Working with Views
+<img width="668" alt="image" src="https://user-images.githubusercontent.com/10931549/226192083-c74647f1-e9c7-4af1-9224-6de86899ef7f.png">
 
