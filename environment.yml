@@ -1,16 +1,16 @@
 name: cse-6242-project
 channels:
-    - conda-forge
-    - anaconda
-    - defaults
+  - defaults
 dependencies:
-    - python=3.11
-    - pandas
-    - numpy
-    - jupyter
-    - matplotlib
-    - seaborn
-    - hdf5
-    - pytables
-    - scikit-learn
-    - spotipy 
+  - pandas
+  - numpy
+  - scikit-learn
+  - python=3.11
+  - spotipy
+  - seaborn
+  - hdf5
+  - jupyter
+  - pytables
+  - matplotlib
+  - django
+prefix: /home/philm/anaconda3/envs/cse-6242-project
