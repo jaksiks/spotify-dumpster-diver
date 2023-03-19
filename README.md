@@ -46,5 +46,11 @@ conda env export --from-history>environment.yml
     * Recommend  opening in Chrome Incognito Mode
     * This will "take over" your existing terminal session; if you want to interact with git, etc. while your local server is running, you can open another terminal window
 
+## Django File Structure
+<img width="177" alt="image" src="https://user-images.githubusercontent.com/10931549/226191252-8044bc25-2ce0-4778-b9df-e01ff94f9002.png">
+
+* Top-level ```/diver``` >> This is where our "diver" app lives
+* ```/diver/diver``` >> App settings and routes
+* ```/diver/dumpster_diver``` >> This is where most people will spend their time; pages ("views"), assets (JS), etc.
 
 
