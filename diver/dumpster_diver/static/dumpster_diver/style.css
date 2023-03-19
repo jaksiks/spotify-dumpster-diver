@@ -1,0 +1,30 @@
+/* Global Colors */
+:root {
+    /* Core Colors */
+    --black: #090606;
+    --white: #FFFFFF;
+    --background: #ffe9d3;
+
+    /* Additional Colors */
+    --dark-white: #EAE2B7;
+    --blue: #175676;
+    --red: #BA324F;
+    --light-blue: #48c2fe;
+}
+
+body {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14px;
+    color: var(--black);
+    background-color: var(--background);
+}
+
+a {
+    color: var(--blue);
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--light-blue);
+    text-decoration: underline;
+}

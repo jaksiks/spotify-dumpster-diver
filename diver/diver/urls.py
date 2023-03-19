@@ -15,7 +15,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from dumpster_diver import views
 
+app_name = 'dumpster_diver'
 urlpatterns = [
+    # This is the native Django Admin panel path
     path("admin/", admin.site.urls),
+
+    # ex: /
+    path('', views.index, name='index'),
 ]

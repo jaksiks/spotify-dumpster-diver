@@ -16,13 +16,13 @@ CSE 6242 Group Project | Spotify Dumpster Diver
 conda env create -f environment.yml
 ```
 
-* Activate the environment
+* Activate the environment (do this every time you open your terminal to load dependencies in virtual environment)
 
 ```bash
 conda activate cse-6242-project
 ```
 
-* Update your environment
+* Update your environment (install dependencies that others added)
 
 ```bash
 conda env update
@@ -43,7 +43,7 @@ conda env export --from-history>environment.yml
 ## Start Your Local Server
 1. Navigate to ```/cse-6242-project/diver``` in a terminal window >> This is the main Django app directory
 2. Run ```python manage.py runserver``` >> This will start a web server locally at http://127.0.0.1:8000/
-    * Recommend  opening in Chrome Incognito Mode
+    * Recommend opening localhost (http://127.0.0.1:8000/) in Chrome Incognito Mode
     * This will "take over" your existing terminal session; if you want to interact with git, etc. while your local server is running, you can open another terminal window
 
 ## Django File Structure
