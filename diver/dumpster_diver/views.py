@@ -10,7 +10,6 @@ def index(request):
 
     wrapper = SpotifyWrapper()
     tracks_df = wrapper.get_user_recent_tracks()
-    print(tracks_df)
 
     ## Then pass your processed data to the frontend via "context" below
     context = {
