@@ -56,3 +56,22 @@ conda env export --from-history>environment.yml
 ## Working with Views
 <img width="668" alt="image" src="https://user-images.githubusercontent.com/10931549/226192083-c74647f1-e9c7-4af1-9224-6de86899ef7f.png">
 
+## Working with index.html
+
+* In order to see a variable passed to the frontend via ```context```, use handlebars. I.e. if you pass the variable "tracks" into the context, use ```{{tracks}}``` in index.html to access the context variable
+* For an exmaple of fancier templating methods, here's [how to do a for loop](https://www.geeksforgeeks.org/for-loop-django-template-tags/) in index.html
+
+## config.yml
+
+* Put your ```config.yml``` file in the "spotify" directory in the following format:
+
+```
+spotify:
+    id: "<id>"
+    client_id: "<client_id>" 
+    client_secret: "<client_secret>"
+    redirect_uri: "http://localhost:8888/callback" <-- Make sure to add this to your Spotify Client!
+```
+
+* Note that ```config.yml``` has been added to ```.gitignore```, and thus won't be tracked (everyone has their own config.yml for your own Spotify connection, for now)
+

@@ -2,16 +2,20 @@ import pandas as pd
 import yaml
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
+from pathlib import Path
 
 
 class SpotifyWrapper:
-    def __init__(self, config_file: str = "config.yml"):
+    def __init__(self):
         # Read credentials from config.yml
         #spotify:
         #    id: "<id>"
         #    client_id: "<client_id>" 
         #    client_secret: "<client_secret>"
         #    redirect_uri: "http://localhost:8888/callback" <-- Make sure to add this to your Spotify Client!
+
+        config_file = Path(__file__).parent / "config.yml"
+        
         with open(config_file, 'r') as f:
             self.config = yaml.safe_load(f)
 

@@ -136,5 +136,6 @@ dmypy.json
 # Config files and return JSONs
 token_info.json
 config.txt
+config.yml
 recently_played_songs.xlsx
 ~$recently_played_songs.xlsx
