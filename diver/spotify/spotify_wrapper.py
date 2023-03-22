@@ -48,6 +48,9 @@ class SpotifyWrapper:
         # Extract track IDs
         track_ids = [track['track']['id'] for track in recent_tracks['items']]
 
+        # Get the track details including popularity
+        track_details = [sp.track(track_id) for track_id in track_ids]
+
         # Get the audio features of the songs
         audio_features = sp.audio_features(track_ids)
 
@@ -55,12 +58,13 @@ class SpotifyWrapper:
 
         # Combine track information and audio features
         combined_data = []
-        for track, features in zip(recent_tracks['items'], audio_features):
+        for track, details, features in zip(recent_tracks['items'], track_details, audio_features):
             track_info = {
                 'track_id': track['track']['id'],
                 'name': track['track']['name'],
                 'artist': track['track']['artists'][0]['name'],
-                'played_at': track['played_at']  # maybe this will be useful for dataviz
+                'played_at': track['played_at'],
+                'popularity': details['popularity']
             }
             combined_data.append({**track_info, **features})
 
