@@ -8,9 +8,10 @@ dependencies:
   - python=3.11
   - spotipy
   - seaborn
+  - h5py
   - hdf5
   - jupyter
   - pytables
   - matplotlib
   - django
-prefix: /home/philm/anaconda3/envs/cse-6242-project
+  - networkx
