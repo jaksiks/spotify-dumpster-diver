@@ -31,17 +31,18 @@ def index(request):
         "target_liveness": 0.3,
         "target_loudness": -15,
         "target_mode": 1,
-        # "target_popularity": 0,
+        "target_popularity": 0,
         "target_speechiness": 0.1,
         "target_tempo": 120,
         "target_time_signature": 4,
         "target_valence": 0.5,
-        "max_popularity": 40
+        "max_popularity": 50
     }
 
     # Pass the seed artists, genres, tracks, and targets into the recommendations function
     recommendations_df = wrapper.get_spotify_recommendations(**sample_params)
-
+    print(recommendations_df.head())
+    print(seed_genres)
     ## Then pass your processed data to the frontend via "context" below
     context = {
         ## Put data here that you want to pass to the frontend in key-value pair/dictionary form:
