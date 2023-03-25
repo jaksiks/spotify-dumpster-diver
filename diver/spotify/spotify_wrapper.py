@@ -39,38 +39,27 @@ class SpotifyWrapper:
         :param limit: The number of songs to return, DEFAULT of 20.
         :returns: DataFrame of the songs and their features
         """
-        # Set the required scopes for access
-        # Note: it would not work with just user-read-recently-played
-        scope = "user-read-recently-played user-library-read"
-
-        # Authenticate with Spotify
-        # Adjust request_timeout if needed
-        sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=self.client_id,
-                                                       client_secret=self.client_secret,
-                                                       redirect_uri=self.redirect_uri,
-                                                       scope=scope),
-                             requests_timeout=140)
 
         # Get the user's recently played songs
-        recent_tracks = sp.current_user_recently_played(limit=limit)
+        recent_tracks = self.sp.current_user_recently_played(limit=limit)
 
         # Extract track IDs
         track_ids = [track['track']['id'] for track in recent_tracks['items']]
 
         # Get the track details including popularity
-        track_details = [sp.track(track_id) for track_id in track_ids]
+        track_details = [self.sp.track(track_id) for track_id in track_ids]
 
         # Get the audio features of the songs
-        audio_features = sp.audio_features(track_ids)
+        audio_features = self.sp.audio_features(track_ids)
 
         # TODO - May need to retrieve array data, not included in the audio_features
 
         # Get the genres of the songs
         track_genres = []
         for track_id in track_ids:
-            track = sp.track(track_id)
+            track = self.sp.track(track_id)
             artist_id = track['artists'][0]['id']
-            artist = sp.artist(artist_id)
+            artist = self.sp.artist(artist_id)
             genres = artist.get('genres')
             track_genres.append(genres)
 
