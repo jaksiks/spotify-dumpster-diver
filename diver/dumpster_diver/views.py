@@ -18,6 +18,8 @@ def index(request):
     flat_genres = list(set([genre for genres in tracks_df['genres'] for genre in genres]))
     seed_genres = flat_genres[:5]
 
+    # TODO handle the case if the paarams are too restrictive and return a blank dataframe
+
     sample_params = {
         "limit": 10,
         "seed_artists": None,
