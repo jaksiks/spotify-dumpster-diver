@@ -25,7 +25,7 @@ def index(request):
         "seed_artists": None,
         "seed_genres": seed_genres,
         "seed_tracks": None,
-        "market": "US",
+        "market": None,
         "target_acousticness": 0.8,
         "target_duration_ms": 200000,
         "target_instrumentalness": 0.5,
