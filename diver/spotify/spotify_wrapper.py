@@ -166,5 +166,6 @@ class SpotifyWrapper:
             return df
 
         else:
+            # TODO: Add logging
             print("Error: Unable to fetch recommendations")
             return None
