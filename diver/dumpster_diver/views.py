@@ -9,7 +9,7 @@ def index(request):
     ## This is what gets called when a user hits the website index/root directory "/"
 
     wrapper = SpotifyWrapper()
-    tracks_df = wrapper.get_user_recent_tracks()
+    tracks_df = wrapper.get_user_recent_tracks(limit=50)
 
     # Extract seed artists, genres, and tracks
     seed_artists = tracks_df['artist_id'].tolist()
@@ -45,14 +45,20 @@ def index(request):
     recommendations_df = wrapper.get_spotify_recommendations(**sample_params)
     print(recommendations_df.head())
     print(seed_genres)
+
+    # Plot recommended tracks
+    features, parallel_cords  = wrapper.plot_song_data(tracks_df)
+    # recommended_songs = wrapper.plot_recommended_songs(recommendations_df)
+
     ## Then pass your processed data to the frontend via "context" below
     context = {
         ## Put data here that you want to pass to the frontend in key-value pair/dictionary form:
         ## 'key':variable,
 
         'tracks': tracks_df.to_html(),
-        'filtered_recommendations': recommendations_df.to_html()
-
+        'filtered_recommendations': recommendations_df.to_html(),
+        'features': features,
+        'parallel_cords': parallel_cords
     }
     
     return render(request, 'dumpster_diver/index.html', context)

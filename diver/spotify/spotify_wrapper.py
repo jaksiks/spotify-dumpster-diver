@@ -3,6 +3,9 @@ import yaml
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from pathlib import Path
+import plotly.express as px
+import plotly.offline as opy
+from sklearn.decomposition import PCA
 
 
 class SpotifyWrapper:
@@ -158,3 +161,32 @@ class SpotifyWrapper:
             # TODO: Add logging
             print("Error: Unable to fetch recommendations")
             return None
+
+    def plot_song_data(self, df):
+        df["tempo_normalized"] = df["tempo"] / df["tempo"].max()
+        df["popularity_normalized"] = df["popularity"] / 100
+
+        features = ["tempo_normalized", "popularity_normalized", "energy", "danceability","key"]
+
+        fig = px.scatter_matrix(
+            df,
+            dimensions=features,
+            color="key",
+            hover_name="name",
+            template="plotly_dark",
+            labels={"tempo_normalized": "Tempo",
+                  "popularity_normalized": "Popularity Width", "energy": "Energy",
+                  "danceability": "Danceability", "key": "Key", }
+        )
+        div = opy.plot(fig, auto_open=False, output_type='div')
+
+        fig = px.parallel_coordinates(df[features], 
+                                    color="key",
+                                    color_continuous_midpoint=3,
+                                    template="plotly_dark",
+                                    labels={"tempo_normalized": "Tempo",
+                                            "popularity_normalized": "Popularity", "energy": "Energy",
+                                            "danceability": "Danceability", "key": "Key", }
+        )
+        div2 = opy.plot(fig, auto_open=False, output_type='div')
+        return div,div2
