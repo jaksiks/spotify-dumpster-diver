@@ -64,7 +64,6 @@ if __name__ == "__main__":
             trans.commit()
         logging.info("Truncation completed")
 
-    
     # Parse the directory for all of the .h5 files
     logging.info("Searching for all .h5 files in {}".format(args["msd_filepath"]))
     h5_files = []
