@@ -71,7 +71,7 @@ def compute_pitch_network_stats(pitch_array: float) -> Tuple[float, float, float
     # Compute the entropy of the graph
     pitch_graph = nx.from_numpy_matrix(pitch_network)
     graph_entropy = shannon_entropy(pitch_graph)
-    average_clustering = nx.average_clustering(pitch_graph, nodes, count_zeros=False)
+    average_clustering = nx.average_clustering(pitch_graph, nodes)
 
     return average_degree, graph_entropy, average_clustering
 
