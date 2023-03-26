@@ -162,14 +162,24 @@ class SpotifyWrapper:
             print("Error: Unable to fetch recommendations")
             return None
 
-    def plot_song_data(self, df):
-        df["tempo_normalized"] = df["tempo"] / df["tempo"].max()
-        df["popularity_normalized"] = df["popularity"] / 100
+    def plot_song_data(self, df_songs, df_recs):
+        # if df_recs.empty:
+        #     print("""""\nXXXXXXXXXXXXXXXX\n
+        #     NO RECCOMENDATAIONS --- PASSING
+        #     \nXXXXXXXXXXXXXXXX\n""")
+        #     return None
+        print(f'Reccomended songs df backend = {df_recs.head()}')
+
+        df_songs["tempo_normalized"] = df_songs["tempo"] / df_songs["tempo"].max()
+        df_songs["popularity_normalized"] = df_songs["popularity"] / 100
+
+        df_recs["tempo_normalized"] = df_recs["tempo"] / df_recs["tempo"].max()
+        df_recs["popularity_normalized"] = df_recs["popularity"] / 100
 
         features = ["tempo_normalized", "popularity_normalized", "energy", "danceability","key"]
 
         fig = px.scatter_matrix(
-            df,
+            df_songs,
             dimensions=features,
             color="key",
             hover_name="name",
@@ -180,7 +190,7 @@ class SpotifyWrapper:
         )
         div = opy.plot(fig, auto_open=False, output_type='div')
 
-        fig = px.parallel_coordinates(df[features], 
+        fig = px.parallel_coordinates(df_songs[features], 
                                     color="key",
                                     color_continuous_midpoint=3,
                                     template="plotly_dark",
@@ -189,4 +199,30 @@ class SpotifyWrapper:
                                             "danceability": "Danceability", "key": "Key", }
         )
         div2 = opy.plot(fig, auto_open=False, output_type='div')
-        return div,div2
+
+        merged_df = pd.concat([df_songs, df_recs], axis=0, keys=['from_songs','from_recs']).reset_index(level=[0])
+        features.append("level_0")
+        print(f'merged_df {merged_df.head()}')
+        fig = px.scatter_matrix(
+            merged_df,
+            dimensions=features,
+            color="level_0",
+            hover_name="name",
+            template="plotly_dark",
+            labels={"tempo_normalized": "Tempo",
+                  "popularity_normalized": "Popularity Width", "energy": "Energy",
+                  "danceability": "Danceability", "key": "Key", "level_0": "Source", }
+        )
+        div3 = opy.plot(fig, auto_open=False, output_type='div')
+
+        fig = px.parallel_coordinates(merged_df[features], 
+                                    color="level_0",
+                                    color_continuous_midpoint=3,
+                                    template="plotly_dark",
+                                    labels={"tempo_normalized": "Tempo",
+                                            "popularity_normalized": "Popularity", "energy": "Energy",
+                                            "danceability": "Danceability", "key": "Key", "level_0": "Source",}
+        )
+        div4 = opy.plot(fig, auto_open=False, output_type='div')
+
+        return div, div2, div3, div4
