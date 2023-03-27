@@ -30,6 +30,8 @@ if __name__ == "__main__":
     parser.add_argument("-f", "--msd-filepath", metavar="FILEPATH", type=str)
     parser.add_argument("-n", "--num-threads", metavar="NUMTHREADS", type=int, choices=range(0, os.cpu_count()))
     parser.add_argument("-t", "--truncate-db", default=False, required=False, action="store_true")
+    parser.add_argument("-s", "--save-df", metavar="PKL-FILEPATH", type=str, required=False)
+    parser.add_argument("-M", "--max-h5-files", metavar="MAX", type=int, required=False)
 
     args = vars(parser.parse_args())
 
@@ -72,12 +74,23 @@ if __name__ == "__main__":
             h5_files.extend([os.path.join(root, x) for x in filter(lambda f: f.endswith(".h5"), files)])
     logging.info("Found {} .h5 files".format(len(h5_files)))
 
+    # If the user specified a max number of files to process
+    if args["max_h5_files"]:
+        logging.info("Only processing a subset of {} files".format(args["max_h5_files"]))
+        h5_files = h5_files[:args["max_h5_files"]]
+
     # Read all the h5 files
     logging.info("Parsing the .h5 files")
     with logging_redirect_tqdm():
         dfs = p_map(msd_h5_to_df, h5_files, **{"num_cpus": args["num_threads"]})
     logging.info("Creating a single datafrom")
     df = pd.concat(dfs)
+
+    # If we want to save the df
+    if args["save_df"]:
+        logging.info("Writing DataFrame to pickle file: {}".format(args["save_df"]))
+        df.to_pickle(args["save_df"])
+        logging.info("Finished writing pickle")
     
     # Writing to the database
     logging.info("Inserting into the database...")
