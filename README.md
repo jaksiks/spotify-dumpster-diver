@@ -85,3 +85,10 @@ To start the PostgreSQL database
 cd docker
 docker-compose up -d
 ```
+
+## To Bring Down the Container
+
+```
+cd docker
+docker-compose down
+```

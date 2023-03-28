@@ -33,7 +33,8 @@ def msd_h5_to_df(filename: str) -> pd.DataFrame:
         msd_id = os.path.basename(f.filename).replace(".h5", "")
         analysis_dict = parse_msd_data_group(f, "analysis")
         metadata_dict = parse_msd_data_group(f, "metadata")
-
+        musicbrainz_dict = parse_msd_data_group(f, "musicbrainz")
+    
     temp_dict = {
         "msd_id": msd_id,
         "artist_id": metadata_dict["songs"][0]["artist_id"].decode("utf-8"),
@@ -42,6 +43,8 @@ def msd_h5_to_df(filename: str) -> pd.DataFrame:
         "artist_hotttnesss": metadata_dict["songs"][0]["artist_hotttnesss"],
         "song_id": metadata_dict["songs"][0]["song_id"].decode("utf-8"),
         "song_title": metadata_dict["songs"][0]["title"].decode("utf-8"),
+        "song_hotttnesss": metadata_dict["songs"][0]["song_hotttnesss"],
+        "year": musicbrainz_dict["songs"][0]["year"],
         "loudness": analysis_dict["songs"][0]["loudness"],
         "energy": analysis_dict["songs"][0]["energy"],
         "danceability": analysis_dict["songs"][0]["danceability"],
@@ -49,7 +52,8 @@ def msd_h5_to_df(filename: str) -> pd.DataFrame:
     }
 
     # Get some summary features for the pitch arrays
-    average_degree, graph_entropy, average_clustering = compute_pitch_network_stats(analysis_dict["segments_pitches"])
+    average_degree, graph_entropy, average_clustering = \
+        compute_pitch_network_stats(analysis_dict["segments_pitches"])
     temp_dict["pitch_network_average_degree"] = average_degree
     temp_dict["pitch_network_entropy"] = graph_entropy
     temp_dict["pitch_network_mean_clustering_coeff"] = average_clustering
@@ -62,19 +66,21 @@ def msd_h5_to_df(filename: str) -> pd.DataFrame:
     return pd.DataFrame.from_dict([temp_dict,])
 
 
-def compute_pitch_network_stats(pitch_array: float) -> Tuple[float, float, float]:
+def compute_pitch_network_stats(pitch_array: np.array) -> Tuple[float, float, float]:
     # Create the pitch network
     pitch_network, pitch_codewords = create_pitch_network(pitch_array)
     # Compute the average degree of the nodes
     nodes = np.unique(pitch_codewords)
-    average_degree = compute_average_graph_degree(pitch_network, nodes)
+    if len(nodes) > 1:
+        average_degree = compute_average_graph_degree(pitch_network, nodes)
+    else:
+        average_degree = 0
     # Compute the entropy of the graph
     pitch_graph = nx.from_numpy_matrix(pitch_network)
     graph_entropy = shannon_entropy(pitch_graph)
     average_clustering = nx.average_clustering(pitch_graph, nodes)
 
     return average_degree, graph_entropy, average_clustering
-
 
 
 def create_pitch_network(pitch_array: np.array,

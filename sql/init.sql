@@ -6,6 +6,8 @@ CREATE TABLE IF NOT EXISTS msd_table (
     artist_hotttnesss REAL NOT NULL,
     song_id TEXT NOT NULL,
     song_title TEXT NOT NULL,
+    song_hotttnesss TEXT NOT NULL,
+    year INT NOT NULL,
     loudness REAL NOT NULL,
     energy REAL NOT NULL,
     danceability REAL NOT NULL,

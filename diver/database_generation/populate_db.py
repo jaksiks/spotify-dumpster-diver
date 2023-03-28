@@ -28,7 +28,7 @@ if __name__ == "__main__":
         description="Parse the MSD to populate the database"
     )
     parser.add_argument("-f", "--msd-filepath", metavar="FILEPATH", type=str)
-    parser.add_argument("-n", "--num-threads", metavar="NUMTHREADS", type=int, choices=range(0, os.cpu_count()))
+    parser.add_argument("-n", "--num-threads", metavar="NUMTHREADS", type=int, choices=range(1, os.cpu_count() + 1))
     parser.add_argument("-t", "--truncate-db", default=False, required=False, action="store_true")
     parser.add_argument("-s", "--save-df", metavar="PKL-FILEPATH", type=str, required=False)
     parser.add_argument("-M", "--max-h5-files", metavar="MAX", type=int, required=False)
