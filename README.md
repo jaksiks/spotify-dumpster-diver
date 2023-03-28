@@ -75,3 +75,20 @@ spotify:
 
 * Note that ```config.yml``` has been added to ```.gitignore```, and thus won't be tracked (everyone has their own config.yml for your own Spotify connection, for now)
 
+# Working with the Database
+
+## Start PostgreSQL Docker Container
+
+To start the PostgreSQL database
+
+```
+cd docker
+docker-compose up -d
+```
+
+## To Bring Down the Container
+
+```
+cd docker
+docker-compose down
+```
