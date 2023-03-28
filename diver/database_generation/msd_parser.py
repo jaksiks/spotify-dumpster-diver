@@ -51,6 +51,9 @@ def msd_h5_to_df(filename: str) -> pd.DataFrame:
         "tempo": analysis_dict["songs"][0]["tempo"]        
     }
 
+    if np.isnan(temp_dict["song_hotttnesss"]):
+        temp_dict["song_hotttnesss"] = 0
+
     # Get some summary features for the pitch arrays
     average_degree, graph_entropy, average_clustering = \
         compute_pitch_network_stats(analysis_dict["segments_pitches"])
