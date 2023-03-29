@@ -216,7 +216,7 @@ class SpotifyWrapper:
         div3 = opy.plot(fig, auto_open=False, output_type='div')
 
         fig = px.parallel_coordinates(merged_df[features], 
-                                    color="level_0",
+                                    color="key",
                                     color_continuous_midpoint=3,
                                     template="plotly_dark",
                                     labels={"tempo_normalized": "Tempo",
