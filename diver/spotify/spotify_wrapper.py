@@ -226,3 +226,86 @@ class SpotifyWrapper:
         div4 = opy.plot(fig, auto_open=False, output_type='div')
 
         return div, div2, div3, div4
+    
+    def plot_msd(self):
+        df = pd.read_pickle("spotify/msd.pkl")
+        df = df[df['year'] >= 1990]
+        df = df[df['song_hotttnesss'] > 0]
+        print(df)
+        for col in df.columns:
+            print(col)
+        features = list(df.columns[16:]) + ["year"]
+
+        # pca = PCA(n_components=3)
+        # components = pca.fit_transform(df[features])
+        # fig = px.scatter_3d(
+        #     components,
+        #     x=0,
+        #     y=1,
+        #     z=2,
+        #     color=df["year"],
+        #     hover_name="song_title",
+        #     template="plotly_dark"
+        # )
+        # total_var = pca.explained_variance_ratio_.sum() * 100
+        # fig = px.scatter_3d(
+        #     components, x=0, y=1, z=2, color=df['year'],
+        #     title=f'Total Explained Variance: {total_var:.2f}%',
+        #     labels={'0': 'PC 1', '1': 'PC 2', '2': 'PC 3'},
+        #     hover_name=df["song_title"],
+        #     template="plotly_dark"
+        # )       
+
+        # fig = px.scatter_matrix(
+        #     df.head(),
+        #     dimensions=features,
+        #     color="tempo",
+        #     hover_name="song_title",
+        #     template="plotly_dark"
+        # )
+
+        # fig = px.scatter_3d(df.sample(10000), x='pitch_network_average_degree', y='pitch_network_entropy', z='pitch_network_mean_clustering_coeff',
+        #             color="tempo",
+        #             template="plotly_dark",
+        #             height=1200, 
+        #             hover_name="song_title",
+        #             animation_frame="year")
+        # fig.update_layout(
+        # scene = dict(
+        #     xaxis = dict(range=[0,13],),
+        #                 yaxis = dict(range=[0,1.75],),
+        #                 zaxis = dict(range=[0,1],),)
+        # )
+        # div = opy.plot(fig, auto_open=False, output_type='div')
+
+        fig = px.scatter_3d(df, x='pitch_network_average_degree', y='pitch_network_entropy', z='pitch_network_mean_clustering_coeff',
+                    color="tempo",
+                    template="plotly_dark",
+                    height=1200, 
+                    hover_name="song_title")
+        div = opy.plot(fig, auto_open=False, output_type='div')
+
+        # fig = px.scatter_matrix(
+        #     df.sample(1000),
+        #     dimensions=features,
+        #     color="year",
+        #     template="plotly_dark",
+        #     height=1200,
+        #     hover_name="song_title"
+        # )
+        # df["year"] = df["year"].astype(str)
+        # fig = px.parallel_coordinates(df[features].sample(1000), 
+        #                             color="year",
+        #                             template="plotly_dark",
+        #                             height=1200
+        #                             )
+
+        # fig = px.scatter(df, x="pitch_network_average_degree", y="pitch_network_entropy", animation_frame="year",
+        #                 color="tempo",
+        #                 hover_name="song_title",
+        #                 template="plotly_dark",
+        #                 height=1200
+        # )
+        div = opy.plot(fig, auto_open=False, output_type='div')
+
+        return div

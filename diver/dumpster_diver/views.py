@@ -41,13 +41,15 @@ def index(request):
         "max_popularity": 50
     }
 
+    msd_plot = wrapper.plot_msd()
+
     # Pass the seed artists, genres, tracks, and targets into the recommendations function
     recommendations_df = wrapper.get_spotify_recommendations(**sample_params)
     print(f'recommendations_df = {recommendations_df.head()}')
     print(f'seed_genres = {seed_genres}')
 
     # Plot track data
-    features, parallel_cords, features_merged, parallel_cords_merged  = wrapper.plot_song_data(tracks_df, recommendations_df)
+    # features, parallel_cords, features_merged, parallel_cords_merged  = wrapper.plot_song_data(tracks_df, recommendations_df)
     # recommended_songs = wrapper.plot_recommended_songs(recommendations_df)
 
     ## Then pass your processed data to the frontend via "context" below
@@ -57,10 +59,11 @@ def index(request):
 
         'tracks': tracks_df.to_html(),
         'filtered_recommendations': recommendations_df.to_html(),
-        'features': features,
-        'parallel_cords': parallel_cords,
-        'features_merged': features_merged,
-        'parallel_cords_merged': parallel_cords_merged
+        'msd_plot': msd_plot
+        # 'features': features,
+        # 'parallel_cords': parallel_cords,
+        # 'features_merged': features_merged,
+        # 'parallel_cords_merged': parallel_cords_merged
     }
     
     return render(request, 'dumpster_diver/index.html', context)
