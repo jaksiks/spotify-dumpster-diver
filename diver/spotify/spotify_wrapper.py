@@ -24,7 +24,7 @@ class SpotifyWrapper:
         self.redirect_uri = self.config["spotify"]["redirect_uri"]
 
         # Set the required scopes for access
-        scope = "user-read-recently-played user-library-read user-read-private user-read-email"
+        scope = "user-read-recently-played user-library-read user-read-private user-read-email user-top-read"
 
         # Authenticate with Spotify
         self.sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=self.client_id,
@@ -32,7 +32,7 @@ class SpotifyWrapper:
                                                             redirect_uri=self.redirect_uri,
                                                             scope=scope))
 
-    def get_user_recent_tracks(self, limit: int = 20) -> pd.DataFrame:
+    def get_user_recent_tracks(self, limit: int = 5) -> pd.DataFrame:
         """
         Retrieves the recently played songs by a user
 
@@ -40,11 +40,15 @@ class SpotifyWrapper:
         :returns: DataFrame of the songs and their features
         """
 
-        # Get the user's recently played songs
-        recent_tracks = self.sp.current_user_recently_played(limit=limit)
+        # Get the user's recently played and top songs
+        recent_tracks = self.sp.current_user_recently_played(limit=5)
+        top_tracks = self.sp.current_user_top_tracks(limit=5)
+
+        # Combine recent and top tracks
+        combined_tracks = recent_tracks['items'] + [{'track': item} for item in top_tracks['items']]
 
         # Extract track IDs
-        track_ids = [track['track']['id'] for track in recent_tracks['items']]
+        track_ids = [track['track']['id'] for track in combined_tracks]
 
         # Get the track details including popularity
         track_details = [self.sp.track(track_id) for track_id in track_ids]
@@ -54,8 +58,6 @@ class SpotifyWrapper:
 
         # ADDED: Get the song array data
         song_arrays = [self.sp.audio_analysis(track_id)['segments'] for track_id in track_ids]
-
-        # TODO - May need to retrieve array data, not included in the audio_features
 
         # Get the genres of the songs
         track_genres = []
@@ -68,14 +70,14 @@ class SpotifyWrapper:
 
         # Combine track information and audio features
         combined_data = []
-        for track, details, features, song_array, genres in zip(recent_tracks['items'], track_details, audio_features,
+        for track, details, features, song_array, genres in zip(combined_tracks, track_details, audio_features,
                                                                 song_arrays, track_genres):
             track_info = {
                 'track_id': track['track']['id'],
                 'name': track['track']['name'],
                 'artist': track['track']['artists'][0]['name'],
                 'artist_id': track['track']['artists'][0]['id'],
-                'played_at': track['played_at'],
+                'played_at': track.get('played_at', None),
                 'popularity': details['popularity'],
                 'song_array': song_array,
                 'genres': genres
