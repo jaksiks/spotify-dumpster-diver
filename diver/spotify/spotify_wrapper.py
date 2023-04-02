@@ -52,6 +52,9 @@ class SpotifyWrapper:
         # Get the audio features of the songs
         audio_features = self.sp.audio_features(track_ids)
 
+        # ADDED: Get the song array data
+        song_arrays = [self.sp.audio_analysis(track_id)['segments'] for track_id in track_ids]
+
         # TODO - May need to retrieve array data, not included in the audio_features
 
         # Get the genres of the songs
@@ -65,8 +68,8 @@ class SpotifyWrapper:
 
         # Combine track information and audio features
         combined_data = []
-        for track, details, features, genres in zip(recent_tracks['items'], track_details, audio_features,
-                                                    track_genres):
+        for track, details, features, song_array, genres in zip(recent_tracks['items'], track_details, audio_features,
+                                                                song_arrays, track_genres):
             track_info = {
                 'track_id': track['track']['id'],
                 'name': track['track']['name'],
@@ -74,6 +77,7 @@ class SpotifyWrapper:
                 'artist_id': track['track']['artists'][0]['id'],
                 'played_at': track['played_at'],
                 'popularity': details['popularity'],
+                'song_array': song_array,
                 'genres': genres
             }
             combined_data.append({**track_info, **features})
