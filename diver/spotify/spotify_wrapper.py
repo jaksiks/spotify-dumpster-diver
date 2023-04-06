@@ -163,11 +163,11 @@ class SpotifyWrapper:
             return None
 
     def plot_song_data(self, df_songs, df_recs):
-        # if df_recs.empty:
-        #     print("""""\nXXXXXXXXXXXXXXXX\n
-        #     NO RECCOMENDATAIONS --- PASSING
-        #     \nXXXXXXXXXXXXXXXX\n""")
-        #     return None
+        if df_recs.empty:
+            print("""""\nXXXXXXXXXXXXXXXX\n
+            NO RECCOMENDATAIONS --- PASSING
+            \nXXXXXXXXXXXXXXXX\n""")
+            df_recs = df_songs
         print(f'Reccomended songs df backend = {df_recs.head()}')
 
         df_songs["tempo_normalized"] = df_songs["tempo"] / df_songs["tempo"].max()
@@ -229,15 +229,15 @@ class SpotifyWrapper:
     
     def plot_msd(self):
         df = pd.read_pickle("spotify/msd.pkl")
-        df = df[df['year'] >= 1990]
-        df = df[df['song_hotttnesss'] > 0]
+        # df = df[df['year'] >= 1990]
+        # df = df[df['song_hotttnesss'] > 0]
         print(df)
         for col in df.columns:
             print(col)
-        features = list(df.columns[16:]) + ["year"]
+        features = list(df.columns[8:])
 
-        # pca = PCA(n_components=3)
-        # components = pca.fit_transform(df[features])
+        pca = PCA(n_components=3)
+        components = pca.fit_transform(df[features])
         # fig = px.scatter_3d(
         #     components,
         #     x=0,
@@ -247,14 +247,15 @@ class SpotifyWrapper:
         #     hover_name="song_title",
         #     template="plotly_dark"
         # )
-        # total_var = pca.explained_variance_ratio_.sum() * 100
-        # fig = px.scatter_3d(
-        #     components, x=0, y=1, z=2, color=df['year'],
-        #     title=f'Total Explained Variance: {total_var:.2f}%',
-        #     labels={'0': 'PC 1', '1': 'PC 2', '2': 'PC 3'},
-        #     hover_name=df["song_title"],
-        #     template="plotly_dark"
-        # )       
+        total_var = pca.explained_variance_ratio_.sum() * 100
+        fig = px.scatter_3d(
+            components, x=0, y=1, z=2, color=df['year'],
+            title=f'Total Explained Variance: {total_var:.2f}%',
+            labels={'0': 'PC 1', '1': 'PC 2', '2': 'PC 3'},
+            hover_name=df["song_title"],
+            template="plotly_dark",
+            height=1200
+        )       
 
         # fig = px.scatter_matrix(
         #     df.head(),
@@ -276,14 +277,14 @@ class SpotifyWrapper:
         #                 yaxis = dict(range=[0,1.75],),
         #                 zaxis = dict(range=[0,1],),)
         # )
-        # div = opy.plot(fig, auto_open=False, output_type='div')
-
-        fig = px.scatter_3d(df, x='pitch_network_average_degree', y='pitch_network_entropy', z='pitch_network_mean_clustering_coeff',
-                    color="tempo",
-                    template="plotly_dark",
-                    height=1200, 
-                    hover_name="song_title")
         div = opy.plot(fig, auto_open=False, output_type='div')
+
+        # fig = px.scatter_3d(df, x='pitch_network_average_degree', y='pitch_network_entropy', z='pitch_network_mean_clustering_coeff',
+        #             color="tempo",
+        #             template="plotly_dark",
+        #             height=1200, 
+        #             hover_name="song_title")
+        # div = opy.plot(fig, auto_open=False, output_type='div')
 
         # fig = px.scatter_matrix(
         #     df.sample(1000),

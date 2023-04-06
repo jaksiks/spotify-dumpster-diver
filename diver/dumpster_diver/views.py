@@ -8,7 +8,7 @@ def index(request):
     ## Call your data processing functions here
     ## This is what gets called when a user hits the website index/root directory "/"
     wrapper = SpotifyWrapper()
-    tracks_df = wrapper.get_user_recent_tracks()
+    tracks_df = wrapper.get_user_recent_tracks(limit=50)
     print('f RECENT SONGS {tracks_df}')
 
     # Extract seed artists, genres, and tracks
@@ -49,7 +49,7 @@ def index(request):
     print(f'seed_genres = {seed_genres}')
 
     # Plot track data
-    # features, parallel_cords, features_merged, parallel_cords_merged  = wrapper.plot_song_data(tracks_df, recommendations_df)
+    features, parallel_cords, features_merged, parallel_cords_merged  = wrapper.plot_song_data(tracks_df, recommendations_df)
     # recommended_songs = wrapper.plot_recommended_songs(recommendations_df)
 
     ## Then pass your processed data to the frontend via "context" below
@@ -59,11 +59,11 @@ def index(request):
 
         'tracks': tracks_df.to_html(),
         'filtered_recommendations': recommendations_df.to_html(),
-        'msd_plot': msd_plot
-        # 'features': features,
-        # 'parallel_cords': parallel_cords,
-        # 'features_merged': features_merged,
-        # 'parallel_cords_merged': parallel_cords_merged
+        'msd_plot': msd_plot,
+        'features': features,
+        'parallel_cords': parallel_cords,
+        'features_merged': features_merged,
+        'parallel_cords_merged': parallel_cords_merged
     }
     
     return render(request, 'dumpster_diver/index.html', context)
