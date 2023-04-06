@@ -9,7 +9,6 @@ def index(request):
     ## This is what gets called when a user hits the website index/root directory "/"
     wrapper = SpotifyWrapper()
     tracks_df = wrapper.get_user_recent_tracks(limit=50)
-    print('f RECENT SONGS {tracks_df}')
 
     # Extract seed artists, genres, and tracks
     seed_artists = tracks_df['artist_id'].tolist()
