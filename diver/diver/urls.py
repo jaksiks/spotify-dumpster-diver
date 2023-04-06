@@ -24,5 +24,4 @@ urlpatterns = [
 
     # ex: /
     path('', views.index, name='index'),
-    path('test/', views.index),
 ]
