@@ -18,7 +18,7 @@ def index(request):
     flat_genres = list(set([genre for genres in tracks_df['genres'] for genre in genres]))
     seed_genres = flat_genres[:5]
 
-    # TODO handle the case if the paarams are too restrictive and return a blank dataframe
+    # TODO handle the case if the params are too restrictive and return a blank dataframe
 
     sample_params = {
         "limit": 10,
@@ -45,12 +45,14 @@ def index(request):
 
     # Pass the seed artists, genres, tracks, and targets into the recommendations function
     recommendations_df = wrapper.get_spotify_recommendations(**sample_params)
-    print(f'recommendations_df = {recommendations_df.head()}')
-    print(f'seed_genres = {seed_genres}')
 
     # Plot track data
     features, parallel_cords, features_merged, parallel_cords_merged  = wrapper.plot_song_data(tracks_df, recommendations_df)
-    # recommended_songs = wrapper.plot_recommended_songs(recommendations_df)
+    print(recommendations_df.head())
+    print(seed_genres)
+
+    # Remove the 'song_array' column from the tracks DataFrame
+    tracks_df_no_array = tracks_df.drop(columns=['song_array'])
 
     ## Then pass your processed data to the frontend via "context" below
     context = {
@@ -63,7 +65,10 @@ def index(request):
         'features': features,
         'parallel_cords': parallel_cords,
         'features_merged': features_merged,
-        'parallel_cords_merged': parallel_cords_merged
+        'parallel_cords_merged': parallel_cords_merged,
+        'tracks': tracks_df_no_array.to_html(),
+        'filtered_recommendations': recommendations_df.to_html()
+
     }
     
     return render(request, 'dumpster_diver/index.html', context)

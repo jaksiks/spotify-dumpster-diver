@@ -1,4 +1,4 @@
-name: cse-6242-project2
+name: cse-6242-project
 channels:
   - defaults
   - conda-forge
@@ -18,3 +18,7 @@ dependencies:
   - networkx
   - plotly
   - pyyaml
+  - tqdm
+  - p-tqdm
+  - sqlalchemy
+  - psycopg2
