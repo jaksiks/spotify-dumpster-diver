@@ -234,12 +234,13 @@ class SpotifyWrapper:
         return div, div2, div3, div4
     
     def plot_msd(self):
-        with open("spotify/msd.pkl", 'rb') as f:
-            df = pd.read_pickle(f)
 
-        # df = df[df['year'] >= 1990]
-        # df = df[df['song_hotttnesss'] > 0]
-        print(df)
+        # Replace the pkl file location below with public-facing URL, as needed
+        df = pd.read_pickle("spotify/msd.pkl")
+
+        # print('msd_df')
+        # print(df)
+
         for col in df.columns:
             print(col)
         features = list(df.columns[8:])
