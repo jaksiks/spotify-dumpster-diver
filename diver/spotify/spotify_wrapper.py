@@ -234,7 +234,9 @@ class SpotifyWrapper:
         return div, div2, div3, div4
     
     def plot_msd(self):
-        df = pd.read_pickle("spotify/msd.pkl")
+        with open("spotify/msd.pkl", 'rb') as f:
+            df = pd.read_pickle(f)
+
         # df = df[df['year'] >= 1990]
         # df = df[df['song_hotttnesss'] > 0]
         print(df)

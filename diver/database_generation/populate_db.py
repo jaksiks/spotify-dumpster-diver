@@ -6,7 +6,7 @@ import pandas as pd
 from tqdm.contrib.logging import logging_redirect_tqdm
 from p_tqdm import p_map
 
-from diver.database_generation.msd_parser import msd_h5_to_df
+from msd_parser import msd_h5_to_df
 
 
 # Probably should have this in a config
