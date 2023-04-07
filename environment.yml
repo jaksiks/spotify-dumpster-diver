@@ -22,3 +22,4 @@ dependencies:
   - p-tqdm
   - sqlalchemy
   - psycopg2
+  - plotly
