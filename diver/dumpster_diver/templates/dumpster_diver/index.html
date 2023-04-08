@@ -4,11 +4,15 @@
 
 {% block content %}
 
-<h2>Tunes from the Dumpster</h2>
-{{filtered_recommendations|safe}}
-
 <h2>Recent User Tracks</h2>
-{{tracks|safe}}
+<div>
+    {{tracks|safe}}
+</div>
+
+<h2>Pitch Network</h2>
+<div>
+    {{pitch_network|safe}}
+</div>
 
 {% endblock %}
 

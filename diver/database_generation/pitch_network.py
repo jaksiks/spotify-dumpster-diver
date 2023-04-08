@@ -1,10 +1,10 @@
 import math
-import numpy as np
+from typing import Tuple
+
 import networkx as nx
-import networkx.algorithms.community as nx_comm
+import numpy as np
 from scipy.sparse import csr_matrix
 from scipy.sparse.csgraph import dijkstra
-from typing import Tuple
 
 
 def compute_pitch_network_stats(pitch_array: np.array) -> Tuple[float, float, float]:
@@ -17,7 +17,7 @@ def compute_pitch_network_stats(pitch_array: np.array) -> Tuple[float, float, fl
     else:
         average_degree = 0
     # Compute the entropy of the graph
-    pitch_graph = nx.from_numpy_matrix(pitch_network)
+    pitch_graph = nx.Graph(pitch_network)
     graph_entropy = shannon_entropy(pitch_graph)
     average_clustering = nx.average_clustering(pitch_graph, nodes)
 

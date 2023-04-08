@@ -1,8 +1,10 @@
-import pandas as pd
-import yaml
-import spotipy
-from spotipy.oauth2 import SpotifyOAuth
 from pathlib import Path
+import numpy as np
+import pandas as pd
+import spotipy
+import yaml
+from database_generation.pitch_network import compute_pitch_network_stats, create_pitch_network
+from spotipy.oauth2 import SpotifyOAuth
 
 
 class SpotifyWrapper:
@@ -32,9 +34,11 @@ class SpotifyWrapper:
                                                             redirect_uri=self.redirect_uri,
                                                             scope=scope))
 
-    def get_user_recent_tracks(self, limit: int = 5) -> pd.DataFrame:
+#    def get_user_recent_tracks(self, limit: int = 5) -> pd.DataFrame:
+    def get_user_recent_tracks(self, limit: int = 5) -> tuple[pd.DataFrame, pd.DataFrame]:
+
         """
-        Retrieves the recently played songs by a user
+        Retrieves the recently played songs by a user with song features
 
         :param limit: The number of songs to return, DEFAULT of 20.
         :returns: DataFrame of the songs and their features
@@ -56,8 +60,29 @@ class SpotifyWrapper:
         # Get the audio features of the songs
         audio_features = self.sp.audio_features(track_ids)
 
-        # ADDED: Get the song array data
+        # Get the song array data
         song_arrays = [self.sp.audio_analysis(track_id)['segments'] for track_id in track_ids]
+
+        # Compute the pitch network stats and create the pitch network
+        pitch_network_data_list = []
+        for song in song_arrays:
+            pitch_array = np.array([segment['pitches'] for segment in song])
+            pitch_network, pitch_codewords = create_pitch_network(pitch_array)
+            average_degree, graph_entropy, average_clustering = compute_pitch_network_stats(pitch_array)
+            pitch_network_data_list.append({
+                'average_degree': average_degree,
+                'graph_entropy': graph_entropy,
+                'average_clustering': average_clustering,
+                'pitch_network': pitch_network,
+                'pitch_codewords': pitch_codewords
+            })
+
+        # Compute the average timbre values for each track
+        average_timbre_values = []
+        for song in song_arrays:
+            timbre_array = np.array([segment['timbre'] for segment in song])
+            average_timbre = np.mean(timbre_array, axis=0)
+            average_timbre_values.append(average_timbre)
 
         # Get the genres of the songs
         track_genres = []
@@ -70,8 +95,10 @@ class SpotifyWrapper:
 
         # Combine track information and audio features
         combined_data = []
-        for track, details, features, song_array, genres in zip(combined_tracks, track_details, audio_features,
-                                                                song_arrays, track_genres):
+        pitch_network_data = []
+
+        for track, details, features, song_array, genres, pitch_stats in \
+                zip(combined_tracks, track_details, audio_features, song_arrays, track_genres, pitch_network_data_list):
             track_info = {
                 'track_id': track['track']['id'],
                 'name': track['track']['name'],
@@ -84,10 +111,42 @@ class SpotifyWrapper:
             }
             combined_data.append({**track_info, **features})
 
+            pitch_network_data_dict = {
+                'track_id': track['track']['id'],
+                'artist_familiarity': np.nan,
+                'artist_hotttnesss': np.nan,
+                'loudness': np.nan,
+                'tempo': np.nan,
+                'pitch_network_average_degree': np.nan,
+                'pitch_network_entropy': np.nan,
+                'pitch_network_mean_clustering_coeff': np.nan,
+                'timbre_00': average_timbre[0],
+                'timbre_01': average_timbre[1],
+                'timbre_02': average_timbre[2],
+                'timbre_03': average_timbre[3],
+                'timbre_04': average_timbre[4],
+                'timbre_05': average_timbre[5],
+                'timbre_06': average_timbre[6],
+                'timbre_07': average_timbre[7],
+                'timbre_08': average_timbre[8],
+                'timbre_09': average_timbre[9],
+                'timbre_10': average_timbre[10],
+                'timbre_11': average_timbre[11],
+                'pitch_network': np.nan,
+                'pitch_codewords': np.nan
+            }
+
+            # Update pitch network data dictionary with pitch_stats
+            pitch_network_data_dict.update(pitch_stats)
+            pitch_network_data.append(pitch_network_data_dict)
+
         # Store everything into a dataframe
         df = pd.DataFrame(combined_data)
 
-        return df
+        # Create pitch_network DataFrame
+        pitch_network_df = pd.DataFrame(pitch_network_data)
+
+        return df, pitch_network_df
 
     def get_spotify_recommendations(self,
                                     seed_artists=None, seed_genres=None, seed_tracks=None,
