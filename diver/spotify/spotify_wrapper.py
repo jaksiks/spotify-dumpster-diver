@@ -5,6 +5,10 @@ import spotipy
 import yaml
 from database_generation.pitch_network import compute_pitch_network_stats, create_pitch_network
 from spotipy.oauth2 import SpotifyOAuth
+from pathlib import Path
+import plotly.express as px
+import plotly.offline as opy
+from sklearn.decomposition import PCA
 
 
 class SpotifyWrapper:
@@ -223,3 +227,155 @@ class SpotifyWrapper:
             # TODO: Add logging
             print("Error: Unable to fetch recommendations")
             return None
+
+    def plot_song_data(self, df_songs, df_recs):
+        if df_recs.empty:
+            print("""""\nXXXXXXXXXXXXXXXX\n
+            NO RECCOMENDATAIONS --- PASSING
+            \nXXXXXXXXXXXXXXXX\n""")
+            df_recs = df_songs
+        print(f'Reccomended songs df backend = {df_recs.head()}')
+
+        df_songs["tempo_normalized"] = df_songs["tempo"] / df_songs["tempo"].max()
+        df_songs["popularity_normalized"] = df_songs["popularity"] / 100
+
+        df_recs["tempo_normalized"] = df_recs["tempo"] / df_recs["tempo"].max()
+        df_recs["popularity_normalized"] = df_recs["popularity"] / 100
+
+        features = ["tempo_normalized", "popularity_normalized", "energy", "danceability","key"]
+
+        fig = px.scatter_matrix(
+            df_songs,
+            dimensions=features,
+            color="key",
+            hover_name="name",
+            template="plotly_dark",
+            labels={"tempo_normalized": "Tempo",
+                  "popularity_normalized": "Popularity Width", "energy": "Energy",
+                  "danceability": "Danceability", "key": "Key", }
+        )
+        div = opy.plot(fig, auto_open=False, output_type='div')
+
+        fig = px.parallel_coordinates(df_songs[features], 
+                                    color="key",
+                                    color_continuous_midpoint=3,
+                                    template="plotly_dark",
+                                    labels={"tempo_normalized": "Tempo",
+                                            "popularity_normalized": "Popularity", "energy": "Energy",
+                                            "danceability": "Danceability", "key": "Key", }
+        )
+        div2 = opy.plot(fig, auto_open=False, output_type='div')
+
+        merged_df = pd.concat([df_songs, df_recs], axis=0, keys=['from_songs','from_recs']).reset_index(level=[0])
+        features.append("level_0")
+        print(f'merged_df {merged_df.head()}')
+        fig = px.scatter_matrix(
+            merged_df,
+            dimensions=features,
+            color="level_0",
+            hover_name="name",
+            template="plotly_dark",
+            labels={"tempo_normalized": "Tempo",
+                  "popularity_normalized": "Popularity Width", "energy": "Energy",
+                  "danceability": "Danceability", "key": "Key", "level_0": "Source", }
+        )
+        div3 = opy.plot(fig, auto_open=False, output_type='div')
+
+        fig = px.parallel_coordinates(merged_df[features], 
+                                    color="key",
+                                    color_continuous_midpoint=3,
+                                    template="plotly_dark",
+                                    labels={"tempo_normalized": "Tempo",
+                                            "popularity_normalized": "Popularity", "energy": "Energy",
+                                            "danceability": "Danceability", "key": "Key", "level_0": "Source",}
+        )
+        div4 = opy.plot(fig, auto_open=False, output_type='div')
+
+        return div, div2, div3, div4
+    
+    def plot_msd(self):
+
+        # Replace the pkl file location below with public-facing URL, as needed
+        df = pd.read_pickle("spotify/msd.pkl")
+
+        # print('msd_df')
+        # print(df)
+
+        for col in df.columns:
+            print(col)
+        features = list(df.columns[8:])
+
+        pca = PCA(n_components=3)
+        components = pca.fit_transform(df[features])
+        # fig = px.scatter_3d(
+        #     components,
+        #     x=0,
+        #     y=1,
+        #     z=2,
+        #     color=df["year"],
+        #     hover_name="song_title",
+        #     template="plotly_dark"
+        # )
+        total_var = pca.explained_variance_ratio_.sum() * 100
+        fig = px.scatter_3d(
+            components, x=0, y=1, z=2, color=df['year'],
+            title=f'Total Explained Variance: {total_var:.2f}%',
+            labels={'0': 'PC 1', '1': 'PC 2', '2': 'PC 3'},
+            hover_name=df["song_title"],
+            template="plotly_dark",
+            height=1200
+        )       
+
+        # fig = px.scatter_matrix(
+        #     df.head(),
+        #     dimensions=features,
+        #     color="tempo",
+        #     hover_name="song_title",
+        #     template="plotly_dark"
+        # )
+
+        # fig = px.scatter_3d(df.sample(10000), x='pitch_network_average_degree', y='pitch_network_entropy', z='pitch_network_mean_clustering_coeff',
+        #             color="tempo",
+        #             template="plotly_dark",
+        #             height=1200, 
+        #             hover_name="song_title",
+        #             animation_frame="year")
+        # fig.update_layout(
+        # scene = dict(
+        #     xaxis = dict(range=[0,13],),
+        #                 yaxis = dict(range=[0,1.75],),
+        #                 zaxis = dict(range=[0,1],),)
+        # )
+        div = opy.plot(fig, auto_open=False, output_type='div')
+
+        # fig = px.scatter_3d(df, x='pitch_network_average_degree', y='pitch_network_entropy', z='pitch_network_mean_clustering_coeff',
+        #             color="tempo",
+        #             template="plotly_dark",
+        #             height=1200, 
+        #             hover_name="song_title")
+        # div = opy.plot(fig, auto_open=False, output_type='div')
+
+        # fig = px.scatter_matrix(
+        #     df.sample(1000),
+        #     dimensions=features,
+        #     color="year",
+        #     template="plotly_dark",
+        #     height=1200,
+        #     hover_name="song_title"
+        # )
+        # df["year"] = df["year"].astype(str)
+        # fig = px.parallel_coordinates(df[features].sample(1000), 
+        #                             color="year",
+        #                             template="plotly_dark",
+        #                             height=1200
+        #                             )
+
+        # fig = px.scatter(df, x="pitch_network_average_degree", y="pitch_network_entropy", animation_frame="year",
+        #                 color="tempo",
+        #                 hover_name="song_title",
+        #                 template="plotly_dark",
+        #                 height=1200
+        # )
+        div = opy.plot(fig, auto_open=False, output_type='div')
+
+        return div

@@ -16,7 +16,10 @@ dependencies:
   - matplotlib
   - django
   - networkx
+  - plotly
+  - pyyaml
   - tqdm
   - p-tqdm
   - sqlalchemy
   - psycopg2
+  - plotly

@@ -4,6 +4,9 @@
 
 {% block content %}
 
+<h2>Tunes from the Dumpster</h2>
+<div>TBD Recommendations Table</div>
+
 <h2>Recent User Tracks</h2>
 <div>
     {{tracks|safe}}
@@ -13,6 +16,22 @@
 <div>
     {{pitch_network|safe}}
 </div>
+
+<h2>Plots!</h2>
+<h3>MSD</h3>
+{{msd_plot|safe}}
+<h3>Features</h3>
+{{features|safe}}
+
+<h3>Parallel Cords</h3>
+{{parallel_cords|safe}}
+
+<h2>Plots with Merged Data!</h2>
+<h3>Features Merged</h3>
+{{features_merged|safe}}
+
+<h3>Parallel Cords Merged</h3>
+{{parallel_cords_merged|safe}}
 
 {% endblock %}
 
