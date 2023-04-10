@@ -1,11 +1,14 @@
-version: '3'
+version: "3"
 
 services:
-  sqlite3:
-    image: nouchka/sqlite3:latest
-    stdin_open: true
-    tty: true
+  db:
+    image: postgres
+    environment:
+      - POSTGRES_USER=diver
+      - POSTGRES_PASSWORD=diver
+      - POSTGRES_DB=dumpster
     ports:
-      - '9000:9000'
+      - "5432:5432"
     volumes:
-      - 'G:/My Drive/GT-Analytics/CSE-6242/Project/msd-metadata/:/root/db/'
+      - ../sql/:/docker-entrypoint-initdb.d/
+      - ../pgdata:/var/lib/postgresql/data
