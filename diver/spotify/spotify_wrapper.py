@@ -49,8 +49,8 @@ class SpotifyWrapper:
         """
 
         # Get the user's recently played and top songs
-        recent_tracks = self.sp.current_user_recently_played(limit=5)
-        top_tracks = self.sp.current_user_top_tracks(limit=5)
+        recent_tracks = self.sp.current_user_recently_played(limit=limit)
+        top_tracks = self.sp.current_user_top_tracks(limit=limit)
 
         # Combine recent and top tracks
         combined_tracks = recent_tracks['items'] + [{'track': item} for item in top_tracks['items']]
