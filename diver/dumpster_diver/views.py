@@ -8,7 +8,8 @@ def index(request):
     ## Call your data processing functions here
     ## This is what gets called when a user hits the website index/root directory "/"
     wrapper = SpotifyWrapper()
-    tracks_df = wrapper.get_user_recent_tracks(limit=50)
+    
+    tracks_df, pitch_network_df = wrapper.get_user_recent_tracks(limit=50)
 
     # Extract seed artists, genres, and tracks
     seed_artists = tracks_df['artist_id'].tolist()
@@ -16,8 +17,6 @@ def index(request):
 
     flat_genres = list(set([genre for genres in tracks_df['genres'] for genre in genres]))
     seed_genres = flat_genres[:5]
-
-    # TODO handle the case if the params are too restrictive and return a blank dataframe
 
     sample_params = {
         "limit": 10,
@@ -40,16 +39,15 @@ def index(request):
         "max_popularity": 50
     }
 
-    msd_plot = wrapper.plot_msd()
+    # // TODO: Replace the sample song recommendations with what is returned by MSD
+    # // This will go into the wrapper.plot_song_data function below
 
     # Pass the seed artists, genres, tracks, and targets into the recommendations function
     recommendations_df = wrapper.get_spotify_recommendations(**sample_params)
 
-    # Plot track data
+    msd_plot = wrapper.plot_msd()
     features, parallel_cords, features_merged, parallel_cords_merged  = wrapper.plot_song_data(tracks_df, recommendations_df)
-    # print(recommendations_df.head())
-    # print(seed_genres)
-
+    
     # Remove the 'song_array' column from the tracks DataFrame
     tracks_df_no_array = tracks_df.drop(columns=['song_array'])
 
@@ -65,6 +63,7 @@ def index(request):
         'features_merged': features_merged,
         'parallel_cords_merged': parallel_cords_merged,
         'tracks': tracks_df_no_array.to_html(),
+        'pitch_network': pitch_network_df.to_html()
     }
     
     return render(request, 'dumpster_diver/index.html', context)
