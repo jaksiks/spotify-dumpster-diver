@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import spotipy
 import yaml
-from database_generation.pitch_network import compute_pitch_network_stats, create_pitch_network
+from diver.database_generation.pitch_network import compute_pitch_network_stats, create_pitch_network
 from spotipy.oauth2 import SpotifyOAuth
 from pathlib import Path
 import plotly.express as px
@@ -119,11 +119,11 @@ class SpotifyWrapper:
                 'track_id': track['track']['id'],
                 'artist_familiarity': np.nan,
                 'artist_hotttnesss': np.nan,
-                'loudness': np.nan,
-                'tempo': np.nan,
-                'pitch_network_average_degree': np.nan,
-                'pitch_network_entropy': np.nan,
-                'pitch_network_mean_clustering_coeff': np.nan,
+                'loudness': features['loudness'],
+                'tempo': features['tempo'],
+                'pitch_network_average_degree': pitch_stats['average_degree'],
+                'pitch_network_entropy': pitch_stats['graph_entropy'],
+                'pitch_network_mean_clustering_coeff': pitch_stats['average_clustering'],
                 'timbre_00': average_timbre[0],
                 'timbre_01': average_timbre[1],
                 'timbre_02': average_timbre[2],
@@ -136,8 +136,8 @@ class SpotifyWrapper:
                 'timbre_09': average_timbre[9],
                 'timbre_10': average_timbre[10],
                 'timbre_11': average_timbre[11],
-                'pitch_network': np.nan,
-                'pitch_codewords': np.nan
+                'pitch_network': pitch_stats['pitch_network'],
+                'pitch_codewords': pitch_stats['pitch_codewords']
             }
 
             # Update pitch network data dictionary with pitch_stats

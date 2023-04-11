@@ -20,7 +20,8 @@ class MSDModel():
                  feature_columns: list[str] = FEATURE_COLUMNS,
                  n_pca_components: int = 3,
                  n_neighbors_default: int = 10,
-                 n_jobs: int = N_JOBS) -> None:
+                 n_jobs: int = N_JOBS,
+                 popularity_threshold: float = 0.85) -> None:
         """
         Initialize the class
 
@@ -32,8 +33,13 @@ class MSDModel():
         self.feature_columns = feature_columns
 
         # Copy of the dataframe
-        self.orig_df = df.copy()
-        self.mucked_with_df = df.copy()
+        self.orig_df = df[df["song_hotttnesss"] > 0].copy()
+        self.mucked_with_df = self.orig_df.copy()
+
+        # Remove NaN from artist familiarity
+        self.mucked_with_df["artist_familiarity"] = self.mucked_with_df["artist_familiarity"].fillna(0)
+        # Remove NaN from artist hotttnesss
+        self.mucked_with_df["artist_hotttnesss"] = self.mucked_with_df["artist_hotttnesss"].fillna(0)
 
         # Standardize the data
         self.scalar = MaxAbsScaler()
@@ -41,7 +47,12 @@ class MSDModel():
 
         # Fit the PCA
         self.pca = PCA(n_components=n_pca_components)
-        self.pca_features = self.pca.fit_transform(self.mucked_with_df[self.feature_columns])
+        self.pca.fit(self.mucked_with_df[self.feature_columns])
+
+        # Filter out popular songs
+        self.orig_df = self.orig_df[self.orig_df["song_hotttnesss"] < popularity_threshold]
+        self.mucked_with_df = self.mucked_with_df[self.mucked_with_df["song_hotttnesss"] < popularity_threshold]
+        self.pca_features = self.pca.transform(self.mucked_with_df[self.feature_columns])
 
         # Declare the nearest neighbors
         self.n_neighbors_default = n_neighbors_default
@@ -75,5 +86,14 @@ class MSDModel():
         transformed_user_df = self.pca.transform(df_in[self.feature_columns])
 
         # Run the model and return the results
-        distances, idx = self.nn.kneighbors(transformed_user_df, n_neighbors=n_neighbors)
+        distances, idx = self.nn.kneighbors(transformed_user_df, n_neighbors=n_neighbors+1)
+        
+        # Test for edge case where one of the songs we are passing in
+        # is a "dumpster", so retreive more and pair down after checking...
+        if distances.flatten()[0] < 1e-6:
+            distances = distances[1:]
+            idx = idx.flatten()[1:]
+        else:
+            distances = distances[0:n_neighbors]
+            idx = idx.flatten()[0:n_neighbors]
         return self.orig_df.iloc[idx.flatten()], transformed_user_df

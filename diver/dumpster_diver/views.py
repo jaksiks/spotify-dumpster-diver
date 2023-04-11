@@ -39,8 +39,8 @@ def index(request):
         "max_popularity": 50
     }
 
-    // TODO: Replace the sample song recommendations with what is returned by MSD
-    // This will go into the wrapper.plot_song_data function below
+    # // TODO: Replace the sample song recommendations with what is returned by MSD
+    # // This will go into the wrapper.plot_song_data function below
 
     # Pass the seed artists, genres, tracks, and targets into the recommendations function
     recommendations_df = wrapper.get_spotify_recommendations(**sample_params)
