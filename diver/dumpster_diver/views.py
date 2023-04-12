@@ -9,7 +9,7 @@ def index(request):
     ## This is what gets called when a user hits the website index/root directory "/"
     wrapper = SpotifyWrapper()
     
-    tracks_df, pitch_network_df = wrapper.get_user_recent_tracks(limit=50)
+    tracks_df, pitch_network_df = wrapper.get_user_recent_tracks(limit=50, time_range="long_term")
 
     # Extract seed artists, genres, and tracks
     seed_artists = tracks_df['artist_id'].tolist()

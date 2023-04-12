@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import spotipy
 import yaml
-from diver.database_generation.pitch_network import compute_pitch_network_stats, create_pitch_network
+from database_generation.pitch_network import compute_pitch_network_stats, create_pitch_network
 from spotipy.oauth2 import SpotifyOAuth
 from pathlib import Path
 import plotly.express as px
@@ -39,7 +39,7 @@ class SpotifyWrapper:
                                                             scope=scope))
 
 #    def get_user_recent_tracks(self, limit: int = 5) -> pd.DataFrame:
-    def get_user_recent_tracks(self, limit: int = 5) -> tuple[pd.DataFrame, pd.DataFrame]:
+    def get_user_recent_tracks(self, limit: int = 5, time_range: str = "long_term") -> tuple[pd.DataFrame, pd.DataFrame]:
 
         """
         Retrieves the recently played songs by a user with song features
@@ -49,8 +49,8 @@ class SpotifyWrapper:
         """
 
         # Get the user's recently played and top songs
-        recent_tracks = self.sp.current_user_recently_played(limit=limit)
-        top_tracks = self.sp.current_user_top_tracks(limit=limit)
+        recent_tracks = self.sp.current_user_recently_played(limit=limit, time_range=time_range)
+        top_tracks = self.sp.current_user_top_tracks(limit=limit, time_range=time_range)
 
         # Combine recent and top tracks
         combined_tracks = recent_tracks['items'] + [{'track': item} for item in top_tracks['items']]
