@@ -8,8 +8,8 @@ from typing import Tuple
 
 
 N_JOBS = int(os.cpu_count() * 0.8)
-FEATURE_COLUMNS = ["loudness", "tempo", "pitch_network_average_degree",
-                   "pitch_network_entropy", "pitch_network_mean_clustering_coeff",
+FEATURE_COLUMNS = ["loudness", "tempo", "popularity", "pitch_network_average_degree",
+                   "pitch_network_entropy", "pitch_network_mean_clustering_coeff", 
                    "timbre_00", "timbre_01", "timbre_02", "timbre_03", "timbre_04", "timbre_05", 
                    "timbre_06", "timbre_07", "timbre_08", "timbre_09", "timbre_10", "timbre_11"]
 
@@ -21,7 +21,7 @@ class MSDModel():
                  n_pca_components: int = 3,
                  n_neighbors_default: int = 10,
                  n_jobs: int = N_JOBS,
-                 popularity_threshold: float = 0.85) -> None:
+                 popularity_threshold: float = 35) -> None:
         """
         Initialize the class
 
@@ -33,13 +33,18 @@ class MSDModel():
         self.feature_columns = feature_columns
 
         # Copy of the dataframe
-        self.orig_df = df[df["song_hotttnesss"] > 0].copy()
+        self.orig_df = df[(df["song_hotttnesss"] > 0) & (df["popularity"] > 0)].copy()
         self.mucked_with_df = self.orig_df.copy()
 
         # Remove NaN from artist familiarity
         self.mucked_with_df["artist_familiarity"] = self.mucked_with_df["artist_familiarity"].fillna(0)
         # Remove NaN from artist hotttnesss
         self.mucked_with_df["artist_hotttnesss"] = self.mucked_with_df["artist_hotttnesss"].fillna(0)
+
+        # Filter out popular songs
+        self.orig_df = self.orig_df[self.orig_df["popularity"] < popularity_threshold]
+        #print(self.orig_df["song_hotttnesss"].mean())
+        self.mucked_with_df = self.mucked_with_df[self.mucked_with_df["popularity"] < popularity_threshold]
 
         # Standardize the data
         self.scalar = MaxAbsScaler()
@@ -50,8 +55,8 @@ class MSDModel():
         self.pca.fit(self.mucked_with_df[self.feature_columns])
 
         # Filter out popular songs
-        self.orig_df = self.orig_df[self.orig_df["song_hotttnesss"] < popularity_threshold]
-        self.mucked_with_df = self.mucked_with_df[self.mucked_with_df["song_hotttnesss"] < popularity_threshold]
+        self.orig_df = self.orig_df[self.orig_df["popularity"] < popularity_threshold]
+        self.mucked_with_df = self.mucked_with_df[self.mucked_with_df["popularity"] < popularity_threshold]
         self.pca_features = self.pca.transform(self.mucked_with_df[self.feature_columns])
 
         # Declare the nearest neighbors

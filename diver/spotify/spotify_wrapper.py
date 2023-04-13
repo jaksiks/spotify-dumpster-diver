@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import spotipy
 import yaml
-from database_generation.pitch_network import compute_pitch_network_stats, create_pitch_network
+from diver.database_generation.pitch_network import compute_pitch_network_stats, create_pitch_network
 from spotipy.oauth2 import SpotifyOAuth
 from pathlib import Path
 import plotly.express as px
@@ -39,23 +39,21 @@ class SpotifyWrapper:
                                                             scope=scope))
 
 #    def get_user_recent_tracks(self, limit: int = 5) -> pd.DataFrame:
-    def get_user_recent_tracks(self, top_tracks_limit: int = 5, recent_tracks_limit: int = 0) -> tuple[pd.DataFrame, pd.DataFrame]:
+    def get_user_recent_tracks(self, limit: int = 5) -> tuple[pd.DataFrame, pd.DataFrame]:
 
         """
         Retrieves the recently played songs by a user with song features
 
-        :param top_tracks_limit: The number of top songs to return, DEFAULT of 5.
-        :param recent_tracks_limit: The number of recent songs to return, DEFAULT of 5.
+        :param limit: The number of songs to return, DEFAULT of 20.
         :returns: DataFrame of the songs and their features
         """
 
         # Get the user's recently played and top songs
-        #recent_tracks = self.sp.current_user_recently_played(limit=recent_tracks_limit)
-        top_tracks = self.sp.current_user_top_tracks(limit=top_tracks_limit)
+        recent_tracks = self.sp.current_user_recently_played(limit=limit)
+        top_tracks = self.sp.current_user_top_tracks(limit=limit)
 
         # Combine recent and top tracks
-        #combined_tracks = recent_tracks['items'] + [{'track': item} for item in top_tracks['items']]
-        combined_tracks = [{'track': item} for item in top_tracks['items']]
+        combined_tracks = recent_tracks['items'] + [{'track': item} for item in top_tracks['items']]
 
         # Extract track IDs
         track_ids = [track['track']['id'] for track in combined_tracks]
@@ -123,6 +121,7 @@ class SpotifyWrapper:
                 'artist_hotttnesss': np.nan,
                 'loudness': features['loudness'],
                 'tempo': features['tempo'],
+                'popularity': details['popularity'],
                 'pitch_network_average_degree': pitch_stats['average_degree'],
                 'pitch_network_entropy': pitch_stats['graph_entropy'],
                 'pitch_network_mean_clustering_coeff': pitch_stats['average_clustering'],
