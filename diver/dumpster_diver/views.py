@@ -78,9 +78,6 @@ def index(request):
     # Remove the 'song_array' column from the tracks DataFrame
     tracks_df_no_array = tracks_df.drop(columns=['song_array'])
 
-    print(recommendations_df.columns)
-    print(recommendations_df['song_id'])
-
     # Clean up recs for frontend
     clean_rec_df = copy.deepcopy(recommendations_df)
     rec_table_drop_columns = ['index', 'msd_id', 'artist_id', 'artist_familiarity', 'artist_hotttnesss', 'song_id', 'year', 'energy', 'danceability', 'tempo', 'pitch_network_average_degree', 'pitch_network_entropy','pitch_network_mean_clustering_coeff', 'timbre_00', 'timbre_01', 'timbre_02', 'timbre_03', 'timbre_04', 'timbre_05', 'timbre_06', 'timbre_07', 'timbre_08', 'timbre_09', 'timbre_10', 'timbre_11']

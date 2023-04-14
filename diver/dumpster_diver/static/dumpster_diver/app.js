@@ -31,11 +31,6 @@ $(document).ready( function () {
     });
 });
 
-// $('#myTable').on( 'click', 'tbody tr', function () {
-//     window.location.href = $(this).data('href');
-//   });
-document.querySelector("#Faceless\\ People")
-
 $('tr').on('click', function() {
     window.open(`https://open.spotify.com/search/${$(this).attr("id")}/tracks`, '_blank');
 });
