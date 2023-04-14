@@ -4,6 +4,9 @@ from django.shortcuts import render
 import os
 import pandas as pd
 import logging
+from matplotlib import pyplot as plt
+import numpy as np
+
 
 # Create your views here.
 def index(request):
@@ -70,6 +73,43 @@ def index(request):
         transformed_song_list_dfs.append(transformed_song_df)
     recommendations_df = pd.concat(recommendations_list_dfs).reset_index()
 
+    #compile data for pitch network
+    pitches = {
+    0: "C",
+    1: "C#/Db",
+    2: "D",
+    3: "D#/Eb",
+    4: "E",
+    5: "F",
+    6: "F#/Gb",
+    7: "G",
+    8: "G#/Ab",
+    9: "A",
+    10: "A#/Bb",
+    11: "B"}
+
+    pitch_df = recommendations_df.copy()
+    audio_analysis_cols = ["pitches", "timbres"]
+    print(pitch_df)
+    pitch_df[audio_analysis_cols] = pitch_df.apply(lambda x: wrapper.get_audio_analysis(x), axis=1)
+
+    idx = 33
+
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+
+    plt.imshow(pitch_df.iloc[idx]["pitches"], aspect='auto')
+    plt.xlabel("Pitch")
+    plt.ylabel("Time")
+    plt.title("\"{}\" - {} - Key {}".format(pitch_df.iloc[idx]["track"],
+                                            pitch_df.iloc[idx]["artist"],
+                                            pitches[pitch_df.iloc[idx]["key"]]
+                                        ))
+    plt.xticks([x for x in pitches.keys()], pitches.values())
+    ax.set_xticks(np.arange(0, 13) - 0.5, minor=True)
+    plt.grid(which='minor', color='w', linestyle='--')
+    plt.show()
+
     logger.info("Displaying our Dumpster Finds!")
     #msd_plot = wrapper.plot_msd()
     #features, parallel_cords, features_merged, parallel_cords_merged  = wrapper.plot_song_data(tracks_df, recommendations_df)
@@ -88,7 +128,7 @@ def index(request):
         #'features_merged': features_merged,
         #'parallel_cords_merged': parallel_cords_merged,
         'tracks': tracks_df_no_array.to_html(),
-        #'pitch_network': pitch_network_df.to_html()
+        'pitch_network': pitch_network_df.to_html()
     }
     
     return render(request, 'dumpster_diver/index.html', context)

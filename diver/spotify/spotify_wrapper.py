@@ -381,3 +381,13 @@ class SpotifyWrapper:
         div = opy.plot(fig, auto_open=False, output_type='div')
 
         return div
+    
+    def get_audio_analysis(self, x):
+        audio_analysis = self.sp.audio_analysis(x["track_id"])
+        pitches = []
+        timbres = []
+        for i in range(len(audio_analysis["segments"])):
+            pitches.append(audio_analysis["segments"][i]["pitches"])
+            timbres.append(audio_analysis["segments"][i]["timbre"])
+            
+        return pd.Series([np.array(pitches), np.array(timbres)])
