@@ -8,6 +8,8 @@ from matplotlib import pyplot as plt
 import numpy as np
 import base64
 from io import BytesIO
+from .models import SongList
+from django.views.generic import ListView
 
 
 # Create your views here.
@@ -75,7 +77,35 @@ def index(request):
         transformed_song_list_dfs.append(transformed_song_df)
     recommendations_df = pd.concat(recommendations_list_dfs).reset_index()
 
-    #compile data for pitch network
+   
+    logger.info("Displaying our Dumpster Finds!")
+    #msd_plot = wrapper.plot_msd()
+    #features, parallel_cords, features_merged, parallel_cords_merged  = wrapper.plot_song_data(tracks_df, recommendations_df)
+    
+    # Remove the 'song_array' column from the tracks DataFrame
+    tracks_df_no_array = tracks_df.drop(columns=['song_array'])
+
+    pitchChart = generatePitchPlot(tracks_df, wrapper)
+
+    ## Then pass your processed data to the frontend via "context" below
+    context = {
+        ## Put data here that you want to pass to the frontend in key-value pair/dictionary form:
+        ## 'key':variable,
+        'recommendations': recommendations_df.to_html(),
+        #'msd_plot': msd_plot,
+        #'features': features,
+        #'parallel_cords': parallel_cords,
+        #'features_merged': features_merged,
+        #'parallel_cords_merged': parallel_cords_merged,
+        'tracks': tracks_df_no_array.to_html(),
+        'pitch_network': pitchChart
+    }
+    
+    return render(request, 'dumpster_diver/index.html', context)
+
+
+def generatePitchPlot(df, wrapper):
+     #compile data for pitch network
     pitches = {
     0: "C",
     1: "C#/Db",
@@ -91,7 +121,7 @@ def index(request):
     11: "B"}
 
     graph = 1
-    pitch_df = tracks_df.copy()
+    pitch_df = df.copy()
     audio_analysis_cols = ["pitches", "timbres"]
     pitch_df[audio_analysis_cols] = pitch_df.apply(lambda x: wrapper.get_audio_analysis(x), axis=1)
     idx = 1
@@ -117,26 +147,7 @@ def index(request):
     graph = base64.b64encode(image_png)
     graph = graph.decode('utf-8')
     buffer.close()
+    return graph
 
-    logger.info("Displaying our Dumpster Finds!")
-    #msd_plot = wrapper.plot_msd()
-    #features, parallel_cords, features_merged, parallel_cords_merged  = wrapper.plot_song_data(tracks_df, recommendations_df)
-    
-    # Remove the 'song_array' column from the tracks DataFrame
-    tracks_df_no_array = tracks_df.drop(columns=['song_array'])
-
-    ## Then pass your processed data to the frontend via "context" below
-    context = {
-        ## Put data here that you want to pass to the frontend in key-value pair/dictionary form:
-        ## 'key':variable,
-        'recommendations': recommendations_df.to_html(),
-        #'msd_plot': msd_plot,
-        #'features': features,
-        #'parallel_cords': parallel_cords,
-        #'features_merged': features_merged,
-        #'parallel_cords_merged': parallel_cords_merged,
-        'tracks': tracks_df_no_array.to_html(),
-        'pitch_network': graph
-    }
-    
-    return render(request, 'dumpster_diver/index.html', context)
+class PitchDrop(ListView):
+    model = SongList
