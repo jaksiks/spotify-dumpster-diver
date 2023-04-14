@@ -13,7 +13,9 @@ $(document).ready( function () {
         order: [[2, 'asc']],
         responsive: true,
         "searching": false,
-        rowId: [0]
+        rowId: function(row) {
+            return row[0] + ' ' + row[1]
+        }
     });
 
     $('#tracks-table').DataTable({
