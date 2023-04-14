@@ -4,6 +4,7 @@ from django.shortcuts import render
 import os
 import pandas as pd
 import logging
+import copy
 
 # Create your views here.
 def index(request):
@@ -77,17 +78,50 @@ def index(request):
     # Remove the 'song_array' column from the tracks DataFrame
     tracks_df_no_array = tracks_df.drop(columns=['song_array'])
 
+    print(recommendations_df.columns)
+    print(recommendations_df['song_id'])
+
+    # Clean up recs for frontend
+    clean_rec_df = copy.deepcopy(recommendations_df)
+    rec_table_drop_columns = ['index', 'msd_id', 'artist_id', 'artist_familiarity', 'artist_hotttnesss', 'song_id', 'year', 'energy', 'danceability', 'tempo', 'pitch_network_average_degree', 'pitch_network_entropy','pitch_network_mean_clustering_coeff', 'timbre_00', 'timbre_01', 'timbre_02', 'timbre_03', 'timbre_04', 'timbre_05', 'timbre_06', 'timbre_07', 'timbre_08', 'timbre_09', 'timbre_10', 'timbre_11']
+    clean_rec_df = clean_rec_df.drop(labels=rec_table_drop_columns, axis=1)
+    rename_rec_columns_dict = {
+        'artist_name':'Artist',
+        'song_title':'Song Title',
+        'song_hotttnesss':'Popularity',
+        'loudness':'Loudness'
+    }
+    clean_rec_df.rename(columns=rename_rec_columns_dict, inplace=True)
+
+    # Change column order
+    clean_rec_df = clean_rec_df[['Song Title', 'Artist', 'Popularity', 'Loudness']]
+
+    # Clean up Spotify top tracks for frontend
+    clean_tracks_df = copy.deepcopy(tracks_df_no_array)
+    tracks_table_drop_columns = ['track_id', 'artist_id', 'played_at', 'danceability', 'energy', 'key', 'mode', 'speechiness', 'acousticness', 'genres', 'instrumentalness', 'liveness', 'valence', 'tempo', 'type', 'id', 'uri', 'track_href', 'analysis_url', 'duration_ms', 'time_signature']
+    clean_tracks_df = clean_tracks_df.drop(labels=tracks_table_drop_columns, axis=1)
+    rename_tracks_columns_dict = {
+        'name':'Song Title',
+        'artist':'Artist',
+        'popularity':'Popularity',
+        'loudness':'Loudness'
+    }
+    clean_tracks_df.rename(columns=rename_tracks_columns_dict, inplace=True)
+
+    # Normalize popularity column for comparison to hotttnesss
+    clean_tracks_df['Popularity'] = clean_tracks_df['Popularity'] / 100
+
     ## Then pass your processed data to the frontend via "context" below
     context = {
         ## Put data here that you want to pass to the frontend in key-value pair/dictionary form:
         ## 'key':variable,
-        'recommendations': recommendations_df.to_html(),
+        'recommendations': clean_rec_df.to_html(classes='table table-bordered table-striped table-dark table-hover', table_id='rec-table', index=False),
         #'msd_plot': msd_plot,
         #'features': features,
         #'parallel_cords': parallel_cords,
         #'features_merged': features_merged,
         #'parallel_cords_merged': parallel_cords_merged,
-        'tracks': tracks_df_no_array.to_html(),
+        'tracks': clean_tracks_df.to_html(classes='table table-bordered table-striped table-dark table-hover', table_id='tracks-table', index=False),
         #'pitch_network': pitch_network_df.to_html()
     }
     

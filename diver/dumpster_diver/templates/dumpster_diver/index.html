@@ -1,42 +1,32 @@
 {% extends "dumpster_diver/base.html" %}
-
+{% load static %}
 {% block title %}{% endblock %}
 
-{% block content %}
 
-<h2>Tunes from the Dumpster</h2>
-<div>Recommendations Table</div>
+{% block content %}
+<div id="nav-left">
+    <img src="{% static 'dumpster_diver/assets/diver_logo.svg' %}" alt="Spotify Dumpster Diver Logo" id="nav-logo"/>
+    <span id="nav-project-name">Spotify Dumpster Diver</span>
+</div>
+<div id="nav-right">
+    <span id="nav-team-number">Team 031</span>
+    <span id="nav-team-names">Dahiana Mejia, Joseph Horth, Philip Markunas, Seth Jaksik, Shawn Abernethy, Stephen Myslici</span>
+</div>
+
+<h2>Diver Song Recommendations</h2>
 <div>
     {{recommendations|safe}}
 </div>
 
-<h2>Recent User Tracks</h2>
+<h2>Your Top Spotify Tracks</h2>
 <div>
     {{tracks|safe}}
 </div>
 
-<h2>Pitch Network</h2>
-<div>
-    {{pitch_network|safe}}
-</div>
-
-<h2>Plots!</h2>
-<h3>MSD</h3>
-{{msd_plot|safe}}
-<h3>Features</h3>
-{{features|safe}}
-
-<h3>Parallel Cords</h3>
-{{parallel_cords|safe}}
-
-<h2>Plots with Merged Data!</h2>
-<h3>Features Merged</h3>
-{{features_merged|safe}}
-
-<h3>Parallel Cords Merged</h3>
-{{parallel_cords_merged|safe}}
-
+<h2>Data Visualizations</h2>
+<div>TBD Visualizations</div>
 {% endblock %}
+
 
 {% block scripts %}
 <script>
