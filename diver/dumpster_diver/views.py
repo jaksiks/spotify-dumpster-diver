@@ -4,7 +4,14 @@ from django.shortcuts import render
 import os
 import pandas as pd
 import logging
+from matplotlib import pyplot as plt
+import numpy as np
+import base64
+from io import BytesIO
+from .models import SongList
+from django.views.generic import ListView
 import copy
+
 
 # Create your views here.
 def index(request):
@@ -71,6 +78,7 @@ def index(request):
         transformed_song_list_dfs.append(transformed_song_df)
     recommendations_df = pd.concat(recommendations_list_dfs).reset_index()
 
+   
     logger.info("Displaying our Dumpster Finds!")
     #msd_plot = wrapper.plot_msd()
     #features, parallel_cords, features_merged, parallel_cords_merged  = wrapper.plot_song_data(tracks_df, recommendations_df)
@@ -108,6 +116,9 @@ def index(request):
     # Normalize popularity column for comparison to hotttnesss
     clean_tracks_df['Popularity'] = clean_tracks_df['Popularity'] / 100
 
+    
+    pitchChart = generatePitchPlot(tracks_df, wrapper)
+
     ## Then pass your processed data to the frontend via "context" below
     context = {
         ## Put data here that you want to pass to the frontend in key-value pair/dictionary form:
@@ -119,7 +130,56 @@ def index(request):
         #'features_merged': features_merged,
         #'parallel_cords_merged': parallel_cords_merged,
         'tracks': clean_tracks_df.to_html(classes='table table-bordered table-striped table-dark table-hover', table_id='tracks-table', index=False),
-        #'pitch_network': pitch_network_df.to_html()
+        'pitch_network': pitchChart
     }
     
     return render(request, 'dumpster_diver/index.html', context)
+
+
+def generatePitchPlot(df, wrapper):
+     #compile data for pitch network
+    pitches = {
+    0: "C",
+    1: "C#/Db",
+    2: "D",
+    3: "D#/Eb",
+    4: "E",
+    5: "F",
+    6: "F#/Gb",
+    7: "G",
+    8: "G#/Ab",
+    9: "A",
+    10: "A#/Bb",
+    11: "B"}
+
+    graph = 1
+    pitch_df = df.copy()
+    audio_analysis_cols = ["pitches", "timbres"]
+    pitch_df[audio_analysis_cols] = pitch_df.apply(lambda x: wrapper.get_audio_analysis(x), axis=1)
+    idx = 1
+    print(pitch_df.iloc[idx])
+
+
+    plt.switch_backend("AGG")
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+
+    plt.imshow(pitch_df.iloc[idx]["pitches"], aspect='auto')
+    plt.xlabel("Pitch")
+    plt.ylabel("Time")
+    plt.title(f"{pitch_df.iloc[idx]['name']} by {pitch_df.iloc[idx]['artist']}")
+    plt.xticks([x for x in pitches.keys()], pitches.values())
+    ax.set_xticks(np.arange(0, 13) - 0.5, minor=True)
+    plt.grid(which='minor', color='w', linestyle='--')
+    
+    buffer = BytesIO()
+    plt.savefig(buffer, format='png')
+    buffer.seek(0)
+    image_png = buffer.getvalue()
+    graph = base64.b64encode(image_png)
+    graph = graph.decode('utf-8')
+    buffer.close()
+    return graph
+
+class PitchDrop(ListView):
+    model = SongList
