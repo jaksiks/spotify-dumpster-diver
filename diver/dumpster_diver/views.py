@@ -6,6 +6,8 @@ import pandas as pd
 import logging
 from matplotlib import pyplot as plt
 import numpy as np
+import base64
+from io import BytesIO
 
 
 # Create your views here.
@@ -88,27 +90,33 @@ def index(request):
     10: "A#/Bb",
     11: "B"}
 
-    pitch_df = recommendations_df.copy()
+    graph = 1
+    pitch_df = tracks_df.copy()
     audio_analysis_cols = ["pitches", "timbres"]
-    print(pitch_df)
     pitch_df[audio_analysis_cols] = pitch_df.apply(lambda x: wrapper.get_audio_analysis(x), axis=1)
+    idx = 1
+    print(pitch_df.iloc[idx])
 
-    idx = 33
 
+    plt.switch_backend("AGG")
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
 
     plt.imshow(pitch_df.iloc[idx]["pitches"], aspect='auto')
     plt.xlabel("Pitch")
     plt.ylabel("Time")
-    plt.title("\"{}\" - {} - Key {}".format(pitch_df.iloc[idx]["track"],
-                                            pitch_df.iloc[idx]["artist"],
-                                            pitches[pitch_df.iloc[idx]["key"]]
-                                        ))
+    plt.title(f"{pitch_df.iloc[idx]['name']} by {pitch_df.iloc[idx]['artist']}")
     plt.xticks([x for x in pitches.keys()], pitches.values())
     ax.set_xticks(np.arange(0, 13) - 0.5, minor=True)
     plt.grid(which='minor', color='w', linestyle='--')
-    plt.show()
+    
+    buffer = BytesIO()
+    plt.savefig(buffer, format='png')
+    buffer.seek(0)
+    image_png = buffer.getvalue()
+    graph = base64.b64encode(image_png)
+    graph = graph.decode('utf-8')
+    buffer.close()
 
     logger.info("Displaying our Dumpster Finds!")
     #msd_plot = wrapper.plot_msd()
@@ -128,7 +136,7 @@ def index(request):
         #'features_merged': features_merged,
         #'parallel_cords_merged': parallel_cords_merged,
         'tracks': tracks_df_no_array.to_html(),
-        'pitch_network': pitch_network_df.to_html()
+        'pitch_network': graph
     }
     
     return render(request, 'dumpster_diver/index.html', context)
