@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import spotipy
 import yaml
+import time
 from database_generation.pitch_network import compute_pitch_network_stats, create_pitch_network
 from spotipy.oauth2 import SpotifyOAuth
 from pathlib import Path
@@ -160,7 +161,8 @@ class SpotifyWrapper:
                                     target_acousticness=None, target_duration_ms=None, target_instrumentalness=None,
                                     target_key=None, target_liveness=None, target_loudness=None, target_mode=None,
                                     target_popularity=None, target_speechiness=None, target_tempo=None,
-                                    target_time_signature=None, target_valence=None, max_popularity=None
+                                    target_time_signature=None, target_valence=None, max_popularity=None,
+                                    sleep_time=10,
                                     ):
 
         params = {
@@ -186,8 +188,14 @@ class SpotifyWrapper:
 
         # Remove None values from the params dictionary
         params = {k: v for k, v in params.items() if v is not None}
+        recommendations = None
 
-        recommendations = self.sp.recommendations(**params)
+        # Loop until we get a recommendation
+        while recommendations is None:
+            recommendations = self.sp.recommendations(**params)
+            if len(recommendations["tracks"]) == 0:
+                time.sleep(sleep_time)
+                recommendations = None
 
         if recommendations:
             track_ids = [track['id'] for track in recommendations['tracks']]

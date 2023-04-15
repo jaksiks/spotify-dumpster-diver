@@ -10,6 +10,10 @@ import copy
 def index(request):
     # Set up logging
     logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+
+    # Define the number of recos we will provide per song
+    recos_per_song = 3
         
     # Initialize the SpotifyWrapper
     logger.info("Retrieving User Spotify Songs")
@@ -19,14 +23,22 @@ def index(request):
     tracks_df, dumpster_diver_feature_df = wrapper.get_user_recent_tracks(top_tracks_limit=5)
 
     # Define parameters for Spotify recommendations
-    seed_genres = list(set([genre for genres in tracks_df['genres'] for genre in genres]))[:5]
-    sample_params = {
-        "limit": 15,
-        "seed_genres": seed_genres,
-    }
+    spotify_recs_list_dfs = []
+    for i in range(len(tracks_df)):
+        seed_tracks = [tracks_df.iloc[i]["track_id"], ]
 
-    # Get Spotify recommendations and clean up the dataframe
-    spotify_recs_df = wrapper.get_spotify_recommendations(**sample_params)
+        # Generate our params for recommendations
+        sample_params = {
+            "limit": recos_per_song,
+            "seed_tracks": seed_tracks,
+        }
+
+        # Get Spotify recommendations and clean up the dataframe
+        temp_df = wrapper.get_spotify_recommendations(**sample_params)
+        # TODO: Compute all the metrics for the spotify recos as our MSD features
+        spotify_recs_list_dfs.append(temp_df)
+
+    spotify_recs_df = pd.concat(spotify_recs_list_dfs).reset_index()
     rename_columns_dict = {
         'name': 'Song Title',
         'artist': 'Artist',
@@ -45,25 +57,25 @@ def index(request):
 
     # Get the MSD recommendations and transform data
     logger.info("Diving into the dumpster!")
-    recommendations_list_dfs = []
+    msd_recommendations_list_dfs = []
     transformed_song_list_dfs = []
     for i in range(len(dumpster_diver_feature_df)):
         cur_rec_df, transformed_song_df = msd_model.find_k_neighbors(
             dumpster_diver_feature_df.iloc[i:i+1],
-            n_neighbors=3
+            n_neighbors=recos_per_song
         )
-        recommendations_list_dfs.append(cur_rec_df)
+        msd_recommendations_list_dfs.append(cur_rec_df)
         transformed_song_list_dfs.append(transformed_song_df)
 
     # Clean up the MSD recommendations and user's recent tracks data
-    recommendations_df = pd.concat(recommendations_list_dfs).reset_index()
+    msd_recommendations_df = pd.concat(msd_recommendations_list_dfs).reset_index()
     rename_columns_dict = {
         'artist_name': 'Artist',
         'song_title': 'Song Title',
         'song_hotttnesss': 'Popularity',
         'loudness': 'Loudness'
     }
-    clean_rec_df = clean_dataframe(recommendations_df, rename_columns=rename_columns_dict)
+    clean_msd_rec_df = clean_dataframe(msd_recommendations_df, rename_columns=rename_columns_dict)
     rename_columns_dict = {
         'name': 'Song Title',
         'artist': 'Artist',
@@ -81,7 +93,7 @@ def index(request):
     context = {
         ## Put data here that you want to pass to the frontend in key-value pair/dictionary form:
         ## 'key':variable,
-        'recommendations': clean_rec_df.to_html(classes='table table-bordered table-striped table-dark table-hover', table_id='rec-table', index=False),
+        'recommendations': clean_msd_rec_df.to_html(classes='table table-bordered table-striped table-dark table-hover', table_id='rec-table', index=False),
         'spotify_recs': cleaned_spotify_recs_df.to_html(classes='table table-bordered table-striped table-dark table-hover', table_id='rec-table', index=False),
         'tracks': clean_tracks_df.to_html(classes='table table-bordered table-striped table-dark table-hover', table_id='tracks-table', index=False),
         # 'msd_plot': msd_plot,
