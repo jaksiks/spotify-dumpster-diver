@@ -13,9 +13,28 @@
     <span id="nav-team-names">Dahiana Mejia, Joseph Horth, Philip Markunas, Seth Jaksik, Shawn Abernethy, Stephen Myslicki</span>
 </div>
 
-<h2>Diver Song Recommendations</h2>
-<div>
-    {{recommendations|safe}}
+<h2>Diver Song Recommendations & Spotify Recommendations</h2>
+<div style="display: flex; justify-content: space-around;">
+    <div style="flex: 1;">
+        <h3>Diver Song Recommendations</h3>
+        <div style="height: 300px; overflow-y: scroll;">
+            {{recommendations|safe}}
+        </div>
+        <div class="feedback-option">
+            <input type="radio" id="diverRecs" name="feedback" value="diverRecs" onclick="submitFeedback(this)">
+            <label for="diverRecs">I prefer Diver Song Recommendations</label>
+        </div>
+    </div>
+    <div style="flex: 1;">
+        <h3>Spotify Recommendations</h3>
+        <div style="height: 300px; overflow-y: scroll;">
+            {{spotify_recs|safe}}
+        </div>
+        <div class="feedback-option">
+            <input type="radio" id="spotifyRecs" name="feedback" value="spotifyRecs" onclick="submitFeedback(this)">
+            <label for="spotifyRecs">I prefer Spotify Recommendations</label>
+        </div>
+    </div>
 </div>
 
 <h2>Your Top Spotify Tracks</h2>
@@ -32,4 +51,17 @@
 <script>
 
 </script>
+{% endblock %}
+
+{% block styles %}
+<style>
+    .feedback-option {
+        font-size: 18px;
+    }
+
+    .feedback-option input[type="radio"] {
+        transform: scale(1.5);
+        margin-right: 8px;
+    }
+</style>
 {% endblock %}

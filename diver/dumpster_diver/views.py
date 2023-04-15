@@ -33,7 +33,7 @@ def index(request):
         'popularity': 'Popularity',
         'loudness': 'Loudness'
     }
-    cleaned_spotify_recs_df = clean_dataframe(spotify_recs_df, rename_columns=rename_columns_dict)
+    cleaned_spotify_recs_df = clean_dataframe(spotify_recs_df, tracks=True, rename_columns=rename_columns_dict)
 
     #TODO: Add the spotify recs to the PCA plot
 
@@ -70,8 +70,7 @@ def index(request):
         'popularity': 'Popularity',
         'loudness': 'Loudness'
     }
-    clean_tracks_df = clean_dataframe(tracks_df.drop(columns=['song_array']), tracks=True,
-                                      rename_columns=rename_columns_dict)
+    clean_tracks_df = clean_dataframe(tracks_df.drop(columns=['song_array']), tracks=True, rename_columns=rename_columns_dict)
 
     # TODO: Plots and plots and plots
     # logger.info("Displaying our Dumpster Finds!")
