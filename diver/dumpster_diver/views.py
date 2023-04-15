@@ -121,5 +121,9 @@ def clean_dataframe(df, tracks=False, rename_columns=None):
     if tracks:
         cleaned_df['Popularity'] = cleaned_df['Popularity'] / 100
 
-    cleaned_df = cleaned_df[['Song Title', 'Artist', 'Popularity', 'Loudness']]
+    # Round the Popularity column to 2 decimal places
+    cleaned_df['Popularity'] = cleaned_df['Popularity'].round(2)
+
+    cleaned_df = cleaned_df[['Song Title', 'Artist', 'Popularity']]
+
     return cleaned_df
