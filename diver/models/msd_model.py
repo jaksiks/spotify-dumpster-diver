@@ -1,8 +1,9 @@
 import numpy as np
 import os
 import pandas as pd
-import plotly.express as px
 import plotly.offline as opy
+import plotly.express as px
+from plotly.subplots import make_subplots
 from sklearn.preprocessing import MaxAbsScaler
 from sklearn.decomposition import PCA
 from sklearn.neighbors import NearestNeighbors
@@ -134,19 +135,79 @@ class MSDModel():
         :returns:
         """
         # Transform all of the dfs to add the PCA columns
+        background_pca_df = self.transform_df(self.orig_df)
+        background_pca_df["Source"] = "MSD"
+
         user_dumpster_diver_features_df = self.transform_df(user_dumpster_diver_features_df)
+        user_dumpster_diver_features_df["Source"] = "User"
+
         msd_recs_dumpster_features_df = self.transform_df(msd_recs_dumpster_features_df)
+        msd_recs_dumpster_features_df["Source"] = "Dumpster Diver"
+
         spotify_recs_dumpster_features_df = self.transform_df(spotify_recs_dumpster_features_df)
+        spotify_recs_dumpster_features_df["Source"] = "Spotify"
+
+        df = pd.concat([background_pca_df,
+                        user_dumpster_diver_features_df,
+                        msd_recs_dumpster_features_df,
+                        spotify_recs_dumpster_features_df])
+
         # Create the plots
+        pca_plot = px.scatter_3d(
+            df,
+            x="PCA 0",
+            y="PCA 1",
+            z="PCA 2",
+            template="plotly_dark",
+            height=1200,
+            color="song_hotttnesss",
+            symbol="Source"
+        )
+        '''
         background_pca = px.scatter_3d(
+            background_pca_df,
+            x="PCA 0",
+            y="PCA 1",
+            z="PCA 2",
+            template="plotly_dark",
+            height=1200,
+            color="song_hotttnesss"
+        )
+        background_pca.data[0].update(marker={"symbol": "circle-open"})
+
+        user_pca = go.Scatter3d(
             user_dumpster_diver_features_df,
+            x="PCA 0",
+            y="PCA 1",
+            z="PCA 2",
+            template="plotly_dark",
+            height=1200,
+            opacity=0.5
+        )
+        user_pca.data[0].update(marker={"color": "yellow", "symbol": "diamond"})
+
+        spotify_pca = px.scatter_3d(
+            spotify_recs_dumpster_features_df,
             x="PCA 0",
             y="PCA 1",
             z="PCA 2",
             template="plotly_dark",
             height=1200
         )
+        spotify_pca.data[0].update(marker={"color": "#1DB954", "symbol": "circle"})
+
+        msd_pca = px.scatter_3d(
+            msd_recs_dumpster_features_df,
+            x="PCA 0",
+            y="PCA 1",
+            z="PCA 2",
+            template="plotly_dark",
+            height=1200
+        )
+        msd_pca.data[0].update(marker={"color": "#BC544B", "symbol": "square"})
+        '''
+
         # Create the div
-        div = opy.plot(background_pca, auto_open=False, output_type="div")
+        div = opy.plot(pca_plot, auto_open=False, output_type="div")
 
         return div
