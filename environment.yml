@@ -23,3 +23,6 @@ dependencies:
   - sqlalchemy
   - psycopg2
   - plotly
+  - pip
+  - pip:
+    - better-profanity

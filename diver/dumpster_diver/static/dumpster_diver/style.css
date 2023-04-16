@@ -28,3 +28,35 @@ a:hover {
     color: var(--light-blue);
     text-decoration: underline;
 }
+
+h2 {
+    margin-top: 40px;
+    margin-bottom: 10px;
+    font-size: 40px;
+    font-weight: 600;
+}
+
+#nav-logo {
+    max-width: 150px;
+    margin-top: 20px;
+}
+
+#nav-project-name {
+    font-size: 40px;
+    font-weight: 800;
+}
+
+#nav-team-number {
+    font-size: 30px;
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    font-weight: 600;
+}
+
+#nav-team-names {
+    font-size: 23px;
+    position: absolute;
+    right: 20px;
+    top: 60px;
+}
