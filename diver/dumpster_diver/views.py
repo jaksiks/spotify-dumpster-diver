@@ -1,11 +1,11 @@
 from spotify.spotify_wrapper import SpotifyWrapper
 from models.msd_model import MSDModel
 from django.shortcuts import render
-from better_profanity import profanity
 import os
 import pandas as pd
 import logging
 import copy
+
 
 # Create your views here.
 def index(request):
@@ -134,7 +134,10 @@ def clean_dataframe(df, tracks=False, rename_columns=None):
     cleaned_df = cleaned_df[['Song Title', 'Artist', 'Popularity']]
 
     # Remove any profanity
-    for col in ['Song Title', 'Artist']:
-        cleaned_df[col] = cleaned_df[col].map(lambda x: profanity.censor(x))
+    if os.environ.get("DUMPSTER_DIVER_CENSOR", "False") == "True":
+        from pdb import set_trace; set_trace()
+        for col in ['Song Title', 'Artist']:
+            from better_profanity import profanity
+            cleaned_df[col] = cleaned_df[col].map(lambda x: profanity.censor(x))
 
     return cleaned_df
