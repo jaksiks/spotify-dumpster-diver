@@ -1,6 +1,8 @@
 import numpy as np
 import os
 import pandas as pd
+import plotly.express as px
+import plotly.offline as opy
 from sklearn.preprocessing import MaxAbsScaler
 from sklearn.decomposition import PCA
 from sklearn.neighbors import NearestNeighbors
@@ -59,6 +61,7 @@ class MSDModel():
         self.nn = NearestNeighbors(n_neighbors=n_neighbors_default, n_jobs=n_jobs)
         self.nn.fit(self.pca_features)
 
+
     def find_k_neighbors(self,
                          user_df: pd.DataFrame,
                          n_neighbors: int = None) -> Tuple[pd.DataFrame, np.array]:
@@ -83,10 +86,10 @@ class MSDModel():
 
         # Transform the user_df to our PCA
         df_in[self.feature_columns] = self.scalar.transform(df_in[self.feature_columns])
-        transformed_user_df = self.pca.transform(df_in[self.feature_columns])
+        transformed_user_array = self.pca.transform(df_in[self.feature_columns])
 
         # Run the model and return the results
-        distances, idx = self.nn.kneighbors(transformed_user_df, n_neighbors=n_neighbors+1)
+        distances, idx = self.nn.kneighbors(transformed_user_array, n_neighbors=n_neighbors+1)
         
         # Test for edge case where one of the songs we are passing in
         # is a "dumpster", so retreive more and pair down after checking...
@@ -96,4 +99,54 @@ class MSDModel():
         else:
             distances = distances[0:n_neighbors]
             idx = idx.flatten()[0:n_neighbors]
-        return self.orig_df.iloc[idx.flatten()], transformed_user_df
+        return self.orig_df.iloc[idx.flatten()], transformed_user_array
+    
+
+    def transform_df(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Given a dataframe with the features, add new columns with the features projected on
+        each of the PCA axes
+
+        :param df: DataFrame of info
+        :return: New dataframe
+        """
+        # Perform the PCA
+        df_out = df.copy()
+        df_out[self.feature_columns] = self.scalar.transform(df_out[self.feature_columns])
+        transformed_user_array = self.pca.transform(df_out[self.feature_columns])
+        # Add the columns
+        for j in range(transformed_user_array.shape[1]):
+            df_out["PCA {}".format(j)] = transformed_user_array[:, j]
+
+        return df_out
+
+
+    def create_pca_plot(self,
+                        user_dumpster_diver_features_df: pd.DataFrame,
+                        msd_recs_dumpster_features_df: pd.DataFrame,
+                        spotify_recs_dumpster_features_df: pd.DataFrame,
+                        ) -> None:
+        """
+        Create the PCA plot with all the data
+        :param user_dumpster_diver_features_df: User listening profile
+        :param msd_recs_dumpster_features_df: MSD Dumpster Diver recos
+        :param spotify_recs_dumpster_features_df: Spotify recos
+        :returns:
+        """
+        # Transform all of the dfs to add the PCA columns
+        user_dumpster_diver_features_df = self.transform_df(user_dumpster_diver_features_df)
+        msd_recs_dumpster_features_df = self.transform_df(msd_recs_dumpster_features_df)
+        spotify_recs_dumpster_features_df = self.transform_df(spotify_recs_dumpster_features_df)
+        # Create the plots
+        background_pca = px.scatter_3d(
+            user_dumpster_diver_features_df,
+            x="PCA 0",
+            y="PCA 1",
+            z="PCA 2",
+            template="plotly_dark",
+            height=1200
+        )
+        # Create the div
+        div = opy.plot(background_pca, auto_open=False, output_type="div")
+
+        return div

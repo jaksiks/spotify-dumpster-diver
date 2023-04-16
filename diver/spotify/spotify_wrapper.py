@@ -166,8 +166,8 @@ class SpotifyWrapper:
 
             dumpster_diver_features_dict = {
                 'track_id': track['track']['id'],
-                'artist_familiarity': np.nan,
-                'artist_hotttnesss': np.nan,
+                'name': track['track']['name'],
+                'artist': track['track']['artists'][0]['name'],
                 'loudness': features['loudness'],
                 'tempo': features['tempo'],
                 'pitch_network_average_degree': pitch_stats['average_degree'],
@@ -267,6 +267,7 @@ class SpotifyWrapper:
 
         return div, div2, div3, div4
     
+
     def plot_msd(self):
 
         # Replace the pkl file location below with public-facing URL, as needed
@@ -353,3 +354,4 @@ class SpotifyWrapper:
         div = opy.plot(fig, auto_open=False, output_type='div')
 
         return div
+    

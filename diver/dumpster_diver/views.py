@@ -66,13 +66,13 @@ def index(request):
     msd_recs_list_dfs = []
     msd_recs_list_dumpster_features = []
     for i in range(len(user_dumpster_diver_features_df)):
-        cur_rec_df, cur_dumpster_features_df = msd_model.find_k_neighbors(
+        cur_rec_df, cur_dumpster_features_array = msd_model.find_k_neighbors(
             user_dumpster_diver_features_df.iloc[i:i+1],
             n_neighbors=recos_per_song
         )
         msd_recs_list_dfs.append(cur_rec_df)
-        msd_recs_list_dumpster_features.append(cur_dumpster_features_df)
-    
+        msd_recs_list_dumpster_features.append(cur_dumpster_features_array)
+        
     msd_recs_df = pd.concat(msd_recs_list_dfs).reset_index()
 
     # Clean up the MSD recommendations and user's recent tracks data
@@ -92,7 +92,10 @@ def index(request):
     clean_tracks_df = clean_dataframe(user_tracks_df.drop(columns=['song_array']), tracks=True, rename_columns=rename_columns_dict)
 
     # TODO: Plots and plots and plots
-    # logger.info("Displaying our Dumpster Finds!")
+    logger.info("Displaying our Dumpster Finds!")
+    pca_div = msd_model.create_pca_plot(user_dumpster_diver_features_df,
+                                        msd_recs_df,
+                                        spotify_recs_dumpster_features_df)
     # msd_plot = wrapper.plot_msd()
     # features, parallel_cords, features_merged, parallel_cords_merged  = wrapper.plot_song_data(tracks_df, recommendations_df)
 
@@ -103,6 +106,7 @@ def index(request):
         'recommendations': clean_msd_rec_df.to_html(classes='table table-bordered table-striped table-dark table-hover', table_id='rec-table', index=False),
         'spotify_recs': cleaned_spotify_recs_df.to_html(classes='table table-bordered table-striped table-dark table-hover', table_id='rec-table', index=False),
         'tracks': clean_tracks_df.to_html(classes='table table-bordered table-striped table-dark table-hover', table_id='tracks-table', index=False),
+        'pca_div': pca_div
         # 'msd_plot': msd_plot,
         # 'features': features,
         # 'parallel_cords': parallel_cords,
@@ -135,7 +139,6 @@ def clean_dataframe(df, tracks=False, rename_columns=None):
 
     # Remove any profanity
     if os.environ.get("DUMPSTER_DIVER_CENSOR", "False") == "True":
-        from pdb import set_trace; set_trace()
         for col in ['Song Title', 'Artist']:
             from better_profanity import profanity
             cleaned_df[col] = cleaned_df[col].map(lambda x: profanity.censor(x))
