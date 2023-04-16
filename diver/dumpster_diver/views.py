@@ -20,12 +20,13 @@ def index(request):
     wrapper = SpotifyWrapper()
     
     # Fetch user's recent tracks and features
-    tracks_df, dumpster_diver_feature_df = wrapper.get_user_recent_tracks(top_tracks_limit=5)
+    user_tracks_df, user_dumpster_diver_features_df = wrapper.get_user_recent_tracks(top_tracks_limit=5)
 
     # Define parameters for Spotify recommendations
     spotify_recs_list_dfs = []
-    for i in range(len(tracks_df)):
-        seed_tracks = [tracks_df.iloc[i]["track_id"], ]
+    spotify_recs_list_dumpster_features_dfs = []
+    for i in range(len(user_tracks_df)):
+        seed_tracks = [user_tracks_df.iloc[i]["track_id"], ]
 
         # Generate our params for recommendations
         sample_params = {
@@ -34,11 +35,15 @@ def index(request):
         }
 
         # Get Spotify recommendations and clean up the dataframe
-        temp_df, _ = wrapper.get_spotify_recommendations(**sample_params)
+        cur_rec_df, cur_dumpster_features_df = wrapper.get_spotify_recommendations(**sample_params)
         # TODO: Compute all the metrics for the spotify recos as our MSD features
-        spotify_recs_list_dfs.append(temp_df)
+        spotify_recs_list_dfs.append(cur_rec_df)
+        spotify_recs_list_dumpster_features_dfs.append(cur_dumpster_features_df)
 
     spotify_recs_df = pd.concat(spotify_recs_list_dfs).reset_index()
+    spotify_recs_dumpster_features_df = pd.concat(spotify_recs_list_dumpster_features_dfs).reset_index()
+
+    # Clean the dumpster diver features
     rename_columns_dict = {
         'name': 'Song Title',
         'artist': 'Artist',
@@ -57,32 +62,33 @@ def index(request):
 
     # Get the MSD recommendations and transform data
     logger.info("Diving into the dumpster!")
-    msd_recommendations_list_dfs = []
-    transformed_song_list_dfs = []
-    for i in range(len(dumpster_diver_feature_df)):
-        cur_rec_df, transformed_song_df = msd_model.find_k_neighbors(
-            dumpster_diver_feature_df.iloc[i:i+1],
+    msd_recs_list_dfs = []
+    msd_recs_list_dumpster_features = []
+    for i in range(len(user_dumpster_diver_features_df)):
+        cur_rec_df, cur_dumpster_features_df = msd_model.find_k_neighbors(
+            user_dumpster_diver_features_df.iloc[i:i+1],
             n_neighbors=recos_per_song
         )
-        msd_recommendations_list_dfs.append(cur_rec_df)
-        transformed_song_list_dfs.append(transformed_song_df)
+        msd_recs_list_dfs.append(cur_rec_df)
+        msd_recs_list_dumpster_features.append(cur_dumpster_features_df)
+    
+    msd_recs_df = pd.concat(msd_recs_list_dfs).reset_index()
 
     # Clean up the MSD recommendations and user's recent tracks data
-    msd_recommendations_df = pd.concat(msd_recommendations_list_dfs).reset_index()
     rename_columns_dict = {
         'artist_name': 'Artist',
         'song_title': 'Song Title',
         'song_hotttnesss': 'Popularity',
         'loudness': 'Loudness'
     }
-    clean_msd_rec_df = clean_dataframe(msd_recommendations_df, rename_columns=rename_columns_dict)
+    clean_msd_rec_df = clean_dataframe(msd_recs_df, rename_columns=rename_columns_dict)
     rename_columns_dict = {
         'name': 'Song Title',
         'artist': 'Artist',
         'popularity': 'Popularity',
         'loudness': 'Loudness'
     }
-    clean_tracks_df = clean_dataframe(tracks_df.drop(columns=['song_array']), tracks=True, rename_columns=rename_columns_dict)
+    clean_tracks_df = clean_dataframe(user_tracks_df.drop(columns=['song_array']), tracks=True, rename_columns=rename_columns_dict)
 
     # TODO: Plots and plots and plots
     # logger.info("Displaying our Dumpster Finds!")

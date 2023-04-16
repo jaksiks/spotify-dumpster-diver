@@ -148,7 +148,7 @@ class SpotifyWrapper:
 
         # Combine track information and audio features
         combined_data = []
-        pitch_network_data = []
+        dumpster_diver_features = []
 
         for track, details, features, song_array, genres, pitch_stats in \
                 zip(spotify_tracks, track_details, audio_features, song_arrays, track_genres, pitch_network_data_list):
@@ -164,7 +164,7 @@ class SpotifyWrapper:
             }
             combined_data.append({**track_info, **features})
 
-            pitch_network_data_dict = {
+            dumpster_diver_features_dict = {
                 'track_id': track['track']['id'],
                 'artist_familiarity': np.nan,
                 'artist_hotttnesss': np.nan,
@@ -190,16 +190,16 @@ class SpotifyWrapper:
             }
 
             # Update pitch network data dictionary with pitch_stats
-            pitch_network_data_dict.update(pitch_stats)
-            pitch_network_data.append(pitch_network_data_dict)
+            dumpster_diver_features_dict.update(pitch_stats)
+            dumpster_diver_features.append(dumpster_diver_features_dict)
 
         # Store everything into a dataframe
         df = pd.DataFrame(combined_data)
 
         # Create pitch_network DataFrame
-        pitch_network_df = pd.DataFrame(pitch_network_data)
+        dumpster_diver_features_df = pd.DataFrame(dumpster_diver_features)
 
-        return df, pitch_network_df
+        return df, dumpster_diver_features_df
     
 
     def plot_song_data(self, df_songs, df_recs):
