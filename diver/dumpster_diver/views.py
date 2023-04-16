@@ -34,7 +34,7 @@ def index(request):
         }
 
         # Get Spotify recommendations and clean up the dataframe
-        temp_df = wrapper.get_spotify_recommendations(**sample_params)
+        temp_df, _ = wrapper.get_spotify_recommendations(**sample_params)
         # TODO: Compute all the metrics for the spotify recos as our MSD features
         spotify_recs_list_dfs.append(temp_df)
 
