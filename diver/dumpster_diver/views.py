@@ -1,6 +1,7 @@
 from spotify.spotify_wrapper import SpotifyWrapper
 from models.msd_model import MSDModel
 from django.shortcuts import render
+from better_profanity import profanity
 import os
 import pandas as pd
 import logging
@@ -131,5 +132,9 @@ def clean_dataframe(df, tracks=False, rename_columns=None):
     cleaned_df['Popularity'] = cleaned_df['Popularity'].round(2)
 
     cleaned_df = cleaned_df[['Song Title', 'Artist', 'Popularity']]
+
+    # Remove any profanity
+    for col in ['Song Title', 'Artist']:
+        cleaned_df[col] = cleaned_df[col].map(lambda x: profanity.censor(x))
 
     return cleaned_df
