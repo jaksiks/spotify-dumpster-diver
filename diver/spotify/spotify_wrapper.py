@@ -5,7 +5,7 @@ import spotipy
 import yaml
 import time
 from typing import Dict, Tuple, List
-from database_generation.pitch_network import compute_pitch_network_stats, create_pitch_network
+from diver.database_generation.pitch_network import compute_pitch_network_stats, create_pitch_network
 from spotipy.oauth2 import SpotifyOAuth
 from pathlib import Path
 import plotly.express as px
@@ -41,7 +41,7 @@ class SpotifyWrapper:
                                                             scope=scope))
 
 #    def get_user_recent_tracks(self, limit: int = 5) -> pd.DataFrame:
-    def get_user_recent_tracks(self, top_tracks_limit: int = 5, recent_tracks_limit: int = 0) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    def get_user_recent_tracks(self, top_tracks_limit: int = 5, recent_tracks_limit: int = 5) -> Tuple[pd.DataFrame, pd.DataFrame]:
 
         """
         Retrieves the recently played songs by a user with song features
