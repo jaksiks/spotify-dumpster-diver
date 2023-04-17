@@ -183,7 +183,7 @@ class MSDModel():
                 symbol="circle"
             ),
             opacity=1,
-            hovertext=df_background["name"]
+            hovertext=df_spotify["name"]
         )
         pca_p0_p1_dumpster = go.Scattergl(
             name="Dumpster Diver Recommendations",
@@ -196,10 +196,10 @@ class MSDModel():
                 symbol="x"
             ),
             opacity=1,
-            hovertext=df_background["song_title"]
+            hovertext=df_dumpster["song_title"]
         )
         pca_p0_p1 = go.Figure(data=[pca_p0_p1_background,pca_p0_p1_spotify,pca_p0_p1_dumpster])
-        pca_p0_p1.update_layout(template="plotly_dark", title="PCA Dimensions 0 and 1", title_x=0.5)
+        pca_p0_p1.update_layout(template="plotly_dark", title="PCA Dimensions 0 and 1", title_x=0.5, height=500)
 
         #
         # Create PCA Plot for PCA 0 and PCA 1
@@ -228,7 +228,7 @@ class MSDModel():
                 symbol="circle"
             ),
             opacity=1,
-            hovertext=df_background["name"]
+            hovertext=df_spotify["name"]
         )
         pca_p1_p2_dumpster = go.Scattergl(
             name="Dumpster Diver Recommendations",
@@ -241,10 +241,10 @@ class MSDModel():
                 symbol="x"
             ),
             opacity=1,
-            hovertext=df_background["song_title"]
+            hovertext=df_dumpster["song_title"]
         )
         pca_p1_p2 = go.Figure(data=[pca_p1_p2_background,pca_p1_p2_spotify,pca_p1_p2_dumpster])
-        pca_p1_p2.update_layout(template="plotly_dark", title="PCA Dimensions 1 and 2", title_x=0.5)
+        pca_p1_p2.update_layout(template="plotly_dark", title="PCA Dimensions 1 and 2", title_x=0.5, height=500)
 
         #
         # Create PCA Plot for PCA 0 and PCA 1
@@ -273,7 +273,7 @@ class MSDModel():
                 symbol="circle"
             ),
             opacity=1,
-            hovertext=df_background["name"]
+            hovertext=df_spotify["name"]
         )
         pca_p0_p2_dumpster = go.Scattergl(
             name="Dumpster Diver Recommendations",
@@ -286,10 +286,10 @@ class MSDModel():
                 symbol="x"
             ),
             opacity=1,
-            hovertext=df_background["song_title"]
+            hovertext=df_dumpster["song_title"]
         )
         pca_p0_p2 = go.Figure(data=[pca_p0_p2_background,pca_p0_p2_spotify,pca_p0_p2_dumpster])
-        pca_p0_p2.update_layout(template="plotly_dark", title="PCA Dimensions 0 and 2", title_x=0.5)
+        pca_p0_p2.update_layout(template="plotly_dark", title="PCA Dimensions 0 and 2", title_x=0.5, height=500)
 
         # Create the divs
         div0 = opy.plot(pca_p0_p1, auto_open=False, output_type="div")

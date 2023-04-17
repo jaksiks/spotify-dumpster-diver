@@ -272,7 +272,6 @@ class SpotifyWrapper:
 
         # Replace the pkl file location below with public-facing URL, as needed
         df = pd.read_pickle("spotify/msd.pkl")
-        df.to_csv('df.csv',index=False)
         # print('msd_df')
         # print(df)
 
