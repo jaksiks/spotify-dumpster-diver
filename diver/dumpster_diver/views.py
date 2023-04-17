@@ -104,7 +104,7 @@ def index(request):
         ## Put data here that you want to pass to the frontend in key-value pair/dictionary form:
         ## 'key':variable,
         'recommendations': clean_msd_rec_df.to_html(classes='table table-bordered table-striped table-dark table-hover', table_id='rec-table', index=False),
-        'spotify_recs': cleaned_spotify_recs_df.to_html(classes='table table-bordered table-striped table-dark table-hover', table_id='rec-table', index=False),
+        'spotify_recs': cleaned_spotify_recs_df.to_html(classes='table table-bordered table-striped table-dark table-hover', table_id='spotify-rec-table', index=False),
         'tracks': clean_tracks_df.to_html(classes='table table-bordered table-striped table-dark table-hover', table_id='tracks-table', index=False),
         'pca_div0': pca_div0,
         'pca_div1': pca_div1,
