@@ -3,6 +3,7 @@ import os
 import pandas as pd
 import plotly.offline as opy
 import plotly.express as px
+import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from sklearn.preprocessing import MaxAbsScaler
 from sklearn.decomposition import PCA
@@ -113,6 +114,7 @@ class MSDModel():
         """
         # Perform the PCA
         df_out = df.copy()
+        df_out = df_out.sample(frac=.25)
         df_out[self.feature_columns] = self.scalar.transform(df_out[self.feature_columns])
         transformed_user_array = self.pca.transform(df_out[self.feature_columns])
         # Add the columns
@@ -147,22 +149,174 @@ class MSDModel():
         spotify_recs_dumpster_features_df = self.transform_df(spotify_recs_dumpster_features_df)
         spotify_recs_dumpster_features_df["Source"] = "Spotify"
 
-        df = pd.concat([background_pca_df,
-                        user_dumpster_diver_features_df,
-                        msd_recs_dumpster_features_df,
-                        spotify_recs_dumpster_features_df])
+        df_background = pd.concat([background_pca_df,
+                        user_dumpster_diver_features_df])
+        
+        df_spotify = pd.concat([spotify_recs_dumpster_features_df])
+        
+        df_dumpster = pd.concat([msd_recs_dumpster_features_df])
+        
+        print(df_background.columns)
+        print(df_spotify.columns)
+        print(df_dumpster.columns)
 
         # Create the plots
-        pca_plot = px.scatter_3d(
-            df,
-            x="PCA 0",
-            y="PCA 1",
-            z="PCA 2",
-            template="plotly_dark",
-            height=1200,
-            color="song_hotttnesss",
-            symbol="Source"
+        # pca_plot = px.scatter_3d(
+        #     df,
+        #     x="PCA 0",
+        #     y="PCA 1",
+        #     z="PCA 2",
+        #     template="plotly_dark",
+        #     height=1200,
+        #     color="song_hotttnesss",
+        #     symbol="Source"
+        # )
+        pca_p0_p1_background = go.Scattergl(
+            x = df_background["PCA 0"],
+            y = df_background["PCA 1"],
+            # template="plotly_dark",
+            mode='markers',
+            marker=dict(
+                color=df_background["song_hotttnesss"],
+                symbol="circle"
+            ),
+            opacity=0.2,
+            hovertext=df_background["song_title"]
         )
+        pca_p0_p1_spotify = go.Scattergl(
+            x = df_spotify["PCA 0"],
+            y = df_spotify["PCA 1"],
+            # template="plotly_dark",
+            mode='markers',
+            marker=dict(
+                color="white",
+                symbol="circle"
+            ),
+            opacity=1,
+            hovertext=df_background["name"]
+        )
+        pca_p0_p1_dumpster = go.Scattergl(
+            x = df_dumpster["PCA 0"],
+            y = df_dumpster["PCA 1"],
+            # template="plotly_dark",
+            mode='markers',
+            marker=dict(
+                color="white",
+                symbol="x"
+            ),
+            opacity=1,
+            hovertext=df_background["song_title"]
+        )
+        pca_p0_p1 = go.Figure(data=[pca_p0_p1_background,pca_p0_p1_spotify,pca_p0_p1_dumpster])
+        pca_p0_p1.update_layout(template="plotly_dark", title="PCA 0 / 1")
+
+        pca_p1_p2_background = go.Scattergl(
+            x = df_background["PCA 1"],
+            y = df_background["PCA 2"],
+            # template="plotly_dark",
+            mode='markers',
+            marker=dict(
+                color=df_background["song_hotttnesss"],
+                symbol="circle"
+            ),
+            opacity=0.2,
+            hovertext=df_background["song_title"]
+        )
+        pca_p1_p2_spotify = go.Scattergl(
+            x = df_spotify["PCA 1"],
+            y = df_spotify["PCA 2"],
+            # template="plotly_dark",
+            mode='markers',
+            marker=dict(
+                color="white",
+                symbol="circle"
+            ),
+            opacity=1,
+            hovertext=df_background["name"]
+        )
+        pca_p1_p2_dumpster = go.Scattergl(
+            x = df_dumpster["PCA 1"],
+            y = df_dumpster["PCA 2"],
+            # template="plotly_dark",
+            mode='markers',
+            marker=dict(
+                color="white",
+                symbol="x"
+            ),
+            opacity=1,
+            hovertext=df_background["song_title"]
+        )
+        pca_p1_p2 = go.Figure(data=[pca_p1_p2_background,pca_p1_p2_spotify,pca_p1_p2_dumpster])
+        pca_p1_p2.update_layout(template="plotly_dark", title="PCA 1 / 2")
+
+        pca_p0_p2_background = go.Scattergl(
+            x = df_background["PCA 0"],
+            y = df_background["PCA 2"],
+            # template="plotly_dark",
+            mode='markers',
+            marker=dict(
+                color=df_background["song_hotttnesss"],
+                symbol="circle"
+            ),
+            opacity=0.2,
+            hovertext=df_background["song_title"]
+        )
+        pca_p0_p2_spotify = go.Scattergl(
+            x = df_spotify["PCA 0"],
+            y = df_spotify["PCA 2"],
+            # template="plotly_dark",
+            mode='markers',
+            marker=dict(
+                color="white",
+                symbol="circle"
+            ),
+            opacity=1,
+            hovertext=df_background["name"]
+        )
+        pca_p0_p2_dumpster = go.Scattergl(
+            x = df_dumpster["PCA 0"],
+            y = df_dumpster["PCA 2"],
+            # template="plotly_dark",
+            mode='markers',
+            marker=dict(
+                color="white",
+                symbol="x"
+            ),
+            opacity=1,
+            hovertext=df_background["song_title"]
+        )
+        pca_p0_p2 = go.Figure(data=[pca_p0_p2_background,pca_p0_p2_spotify,pca_p0_p2_dumpster])
+        pca_p0_p2.update_layout(template="plotly_dark", title="PCA 0 / 2")
+
+        # pca_p0_p1 = px.Scattergl(
+        #     df, 
+        #     x="PCA 0",
+        #     y="PCA 1",
+        #     template="plotly_dark",
+        #     height=1200,
+        #     color="song_hotttnesss",
+        #     symbol="Source"
+        # )
+
+        # pca_p1_p2 = px.scattergl(
+        #     df, 
+        #     x="PCA 1",
+        #     y="PCA 2",
+        #     template="plotly_dark",
+        #     height=1200,
+        #     color="song_hotttnesss",
+        #     symbol="Source"
+        # )
+
+        # pca_p0_p2 = px.scattergl(
+        #     df, 
+        #     x="PCA 0",
+        #     y="PCA 2",
+        #     template="plotly_dark",
+        #     height=1200,
+        #     color="song_hotttnesss",
+        #     symbol="Source"
+        # )
         '''
         background_pca = px.scatter_3d(
             background_pca_df,
@@ -208,6 +362,10 @@ class MSDModel():
         '''
 
         # Create the div
-        div = opy.plot(pca_plot, auto_open=False, output_type="div")
+        # div = opy.plot(pca_plot, auto_open=False, output_type="div")
+        div0 = opy.plot(pca_p0_p1, auto_open=False, output_type="div")
+        div1 = opy.plot(pca_p1_p2, auto_open=False, output_type="div")
+        div2 = opy.plot(pca_p0_p2, auto_open=False, output_type="div")
 
-        return div
+        # return div
+        return div0, div1, div2
