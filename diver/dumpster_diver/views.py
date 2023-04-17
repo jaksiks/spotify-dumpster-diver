@@ -100,7 +100,8 @@ def index(request):
     
     # Generate our Feature plots
     spotify_recs_dumpster_features_df["popularity"] = spotify_recs_df["popularity"]
-    features_div = generate_feature_plot(msd_recs_df, spotify_recs_dumpster_features_df)
+    user_dumpster_diver_features_df["popularity"] = user_tracks_df["popularity"]
+    features_div = generate_feature_plot(msd_recs_df, spotify_recs_dumpster_features_df, user_dumpster_diver_features_df)
     # msd_plot = wrapper.plot_msd()
     # features, parallel_cords, features_merged, parallel_cords_merged  = wrapper.plot_song_data(tracks_df, recommendations_df)
 
