@@ -1,3 +1,5 @@
+import sys
+sys.path.append('..')
 from spotify.spotify_wrapper import SpotifyWrapper
 from models.msd_model import MSDModel
 from django.shortcuts import render
@@ -6,10 +8,10 @@ import pandas as pd
 import logging
 import numpy as np
 import copy
-import plotly.offline as opy
+from models.plot_features import generate_feature_plotimport plotly.offline as opy
 import plotly.express as px
 import plotly.graph_objects as go
-import pandas as pd
+
 
 # Create your views here.
 def index(request):
@@ -97,9 +99,14 @@ def index(request):
 
     # TODO: Plots and plots and plots
     logger.info("Displaying our Dumpster Finds!")
-    pca_div = msd_model.create_pca_plot(user_dumpster_diver_features_df,
+    pca_div0, pca_div1, pca_div2 = msd_model.create_pca_plot(user_dumpster_diver_features_df,
                                         msd_recs_df,
                                         spotify_recs_dumpster_features_df)
+    
+    # Generate our Feature plots
+    spotify_recs_dumpster_features_df["popularity"] = spotify_recs_df["popularity"]
+    user_dumpster_diver_features_df["popularity"] = user_tracks_df["popularity"]
+    features_div = generate_feature_plot(msd_recs_df, spotify_recs_dumpster_features_df, user_dumpster_diver_features_df)
     # msd_plot = wrapper.plot_msd()
     # features, parallel_cords, features_merged, parallel_cords_merged  = wrapper.plot_song_data(tracks_df, recommendations_df)
 
@@ -112,13 +119,17 @@ def index(request):
         'recommendations': clean_msd_rec_df.to_html(classes='table table-bordered table-striped table-dark table-hover', table_id='rec-table', index=False),
         'spotify_recs': cleaned_spotify_recs_df.to_html(classes='table table-bordered table-striped table-dark table-hover', table_id='spotify-rec-table', index=False),
         'tracks': clean_tracks_df.to_html(classes='table table-bordered table-striped table-dark table-hover', table_id='tracks-table', index=False),
-        #'pca_div': pca_div,
+        'features_div': features_div,
+        'pca_div0': pca_div0,
+        'pca_div1': pca_div1,
+        'pca_div2': pca_div2,
+        'pitch_network': pitchChart
         # 'msd_plot': msd_plot,
         # 'features': features,
         # 'parallel_cords': parallel_cords,
         # 'features_merged': features_merged,
         # 'parallel_cords_merged': parallel_cords_merged,
-        'pitch_network': pitchChart
+        
     }
 
     return render(request, 'dumpster_diver/index.html', context)

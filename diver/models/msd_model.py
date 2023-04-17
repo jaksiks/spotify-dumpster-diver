@@ -3,6 +3,7 @@ import os
 import pandas as pd
 import plotly.offline as opy
 import plotly.express as px
+import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from sklearn.preprocessing import MaxAbsScaler
 from sklearn.decomposition import PCA
@@ -113,6 +114,7 @@ class MSDModel():
         """
         # Perform the PCA
         df_out = df.copy()
+        # df_out = df_out.sample(frac=.25)
         df_out[self.feature_columns] = self.scalar.transform(df_out[self.feature_columns])
         transformed_user_array = self.pca.transform(df_out[self.feature_columns])
         # Add the columns
@@ -147,67 +149,195 @@ class MSDModel():
         spotify_recs_dumpster_features_df = self.transform_df(spotify_recs_dumpster_features_df)
         spotify_recs_dumpster_features_df["Source"] = "Spotify"
 
-        df = pd.concat([background_pca_df,
-                        user_dumpster_diver_features_df,
-                        msd_recs_dumpster_features_df,
-                        spotify_recs_dumpster_features_df])
+        user_dumpster_diver_features_df
 
-        # Create the plots
-        pca_plot = px.scatter_3d(
-            df,
-            x="PCA 0",
-            y="PCA 1",
-            z="PCA 2",
-            template="plotly_dark",
-            height=1200,
-            color="song_hotttnesss",
-            symbol="Source"
+        #
+        # Create PCA Plot for PCA 0 and PCA 1
+        #
+        pca_p0_p1_background = go.Scattergl(
+            name="MSD Data",
+            x = background_pca_df["PCA 0"],
+            y = background_pca_df["PCA 1"],
+            # template="plotly_dark",
+            mode='markers',
+            marker=dict(
+                color=background_pca_df["song_hotttnesss"],
+                symbol="circle"
+            ),
+            opacity=0.2,
+            hovertext=background_pca_df["song_title"]
         )
-        '''
-        background_pca = px.scatter_3d(
-            background_pca_df,
-            x="PCA 0",
-            y="PCA 1",
-            z="PCA 2",
-            template="plotly_dark",
-            height=1200,
-            color="song_hotttnesss"
+        pca_p0_p1_spotify = go.Scattergl(
+            name="Spotify Recommendations",
+            x = spotify_recs_dumpster_features_df["PCA 0"],
+            y = spotify_recs_dumpster_features_df["PCA 1"],
+            # template="plotly_dark",
+            mode='markers',
+            marker=dict(
+                color='rgb(74,206,110)',
+                symbol="circle",
+                size=10
+            ),
+            opacity=1,
+            hovertext=spotify_recs_dumpster_features_df["name"]
         )
-        background_pca.data[0].update(marker={"symbol": "circle-open"})
-
-        user_pca = go.Scatter3d(
-            user_dumpster_diver_features_df,
-            x="PCA 0",
-            y="PCA 1",
-            z="PCA 2",
-            template="plotly_dark",
-            height=1200,
-            opacity=0.5
+        pca_p0_p1_dumpster = go.Scattergl(
+            name="Dumpster Diver Recommendations",
+            x = msd_recs_dumpster_features_df["PCA 0"],
+            y = msd_recs_dumpster_features_df["PCA 1"],
+            # template="plotly_dark",
+            mode='markers',
+            marker=dict(
+                color='rgb(0,255,255)',
+                symbol="x",
+                size=10
+            ),
+            opacity=1,
+            hovertext=msd_recs_dumpster_features_df["song_title"]
         )
-        user_pca.data[0].update(marker={"color": "yellow", "symbol": "diamond"})
-
-        spotify_pca = px.scatter_3d(
-            spotify_recs_dumpster_features_df,
-            x="PCA 0",
-            y="PCA 1",
-            z="PCA 2",
-            template="plotly_dark",
-            height=1200
+        pca_p0_p1_user = go.Scattergl(
+            name="User's Top Spotify Tracks",
+            x = user_dumpster_diver_features_df["PCA 0"],
+            y = user_dumpster_diver_features_df["PCA 1"],
+            # template="plotly_dark",
+            mode='markers',
+            marker=dict(
+                color='rgb(255,255,0)',
+                symbol="x",
+                size=10
+            ),
+            opacity=1,
+            hovertext=user_dumpster_diver_features_df["name"]
         )
-        spotify_pca.data[0].update(marker={"color": "#1DB954", "symbol": "circle"})
+        pca_p0_p1 = go.Figure(data=[pca_p0_p1_background,pca_p0_p1_spotify,pca_p0_p1_dumpster, pca_p0_p1_user])
+        pca_p0_p1.update_layout(template="plotly_dark", title="PCA Dimensions 0 and 1", title_x=0.5, height=500)
 
-        msd_pca = px.scatter_3d(
-            msd_recs_dumpster_features_df,
-            x="PCA 0",
-            y="PCA 1",
-            z="PCA 2",
-            template="plotly_dark",
-            height=1200
+        #
+        # Create PCA Plot for PCA 0 and PCA 1
+        #
+        pca_p1_p2_background = go.Scattergl(
+            name="MSD Data",
+            x = background_pca_df["PCA 1"],
+            y = background_pca_df["PCA 2"],
+            # template="plotly_dark",
+            mode='markers',
+            marker=dict(
+                color=background_pca_df["song_hotttnesss"],
+                symbol="circle"
+            ),
+            opacity=0.2,
+            hovertext=background_pca_df["song_title"]
         )
-        msd_pca.data[0].update(marker={"color": "#BC544B", "symbol": "square"})
-        '''
+        pca_p1_p2_spotify = go.Scattergl(
+            name="Spotify Recommendations",
+            x = spotify_recs_dumpster_features_df["PCA 1"],
+            y = spotify_recs_dumpster_features_df["PCA 2"],
+            # template="plotly_dark",
+            mode='markers',
+            marker=dict(
+                color='rgb(74,206,110)',
+                symbol="circle",
+                size=10
+            ),
+            opacity=1,
+            hovertext=spotify_recs_dumpster_features_df["name"]
+        )
+        pca_p1_p2_dumpster = go.Scattergl(
+            name="Dumpster Diver Recommendations",
+            x = msd_recs_dumpster_features_df["PCA 1"],
+            y = msd_recs_dumpster_features_df["PCA 2"],
+            # template="plotly_dark",
+            mode='markers',
+            marker=dict(
+                color='rgb(0,255,255)',
+                symbol="x",
+                size=10
+            ),
+            opacity=1,
+            hovertext=msd_recs_dumpster_features_df["song_title"]
+        )
+        pca_p1_p2_user = go.Scattergl(
+            name="User's Top Spotify Tracks",
+            x = user_dumpster_diver_features_df["PCA 1"],
+            y = user_dumpster_diver_features_df["PCA 2"],
+            # template="plotly_dark",
+            mode='markers',
+            marker=dict(
+                color='rgb(255,255,0)',
+                symbol="x",
+                size=10
+            ),
+            opacity=1,
+            hovertext=user_dumpster_diver_features_df["name"]
+        )
+        pca_p1_p2 = go.Figure(data=[pca_p1_p2_background,pca_p1_p2_spotify,pca_p1_p2_dumpster, pca_p1_p2_user])
+        pca_p1_p2.update_layout(template="plotly_dark", title="PCA Dimensions 1 and 2", title_x=0.5, height=500)
 
-        # Create the div
-        div = opy.plot(pca_plot, auto_open=False, output_type="div")
+        #
+        # Create PCA Plot for PCA 0 and PCA 1
+        #
+        pca_p0_p2_background = go.Scattergl(
+            name="MSD Data",
+            x = background_pca_df["PCA 0"],
+            y = background_pca_df["PCA 2"],
+            # template="plotly_dark",
+            mode='markers',
+            marker=dict(
+                color=background_pca_df["song_hotttnesss"],
+                symbol="circle"
+            ),
+            opacity=0.2,
+            hovertext=background_pca_df["song_title"]
+        )
+        pca_p0_p2_spotify = go.Scattergl(
+            name="Spotify Recommendations",
+            x = spotify_recs_dumpster_features_df["PCA 0"],
+            y = spotify_recs_dumpster_features_df["PCA 2"],
+            # template="plotly_dark",
+            mode='markers',
+            marker=dict(
+                color='rgb(74,206,110)',
+                symbol="circle",
+                size=10
+            ),
+            opacity=1,
+            hovertext=spotify_recs_dumpster_features_df["name"]
+        )
+        pca_p0_p2_dumpster = go.Scattergl(
+            name="Dumpster Diver Recommendations",
+            x = msd_recs_dumpster_features_df["PCA 0"],
+            y = msd_recs_dumpster_features_df["PCA 2"],
+            # template="plotly_dark",
+            mode='markers',
+            marker=dict(
+                color='rgb(0,255,255)',
+                symbol="x",
+                size=10
+            ),
+            opacity=1,
+            hovertext=msd_recs_dumpster_features_df["song_title"]
+        )
+        pca_p0_p2_user = go.Scattergl(
+            name="User's Top Spotify Tracks",
+            x = user_dumpster_diver_features_df["PCA 0"],
+            y = user_dumpster_diver_features_df["PCA 2"],
+            # template="plotly_dark",
+            mode='markers',
+            marker=dict(
+                color='rgb(255,255,0)',
+                symbol="x",
+                size=10
+            ),
+            opacity=1,
+            hovertext=user_dumpster_diver_features_df["name"]
+        )
+        pca_p0_p2 = go.Figure(data=[pca_p0_p2_background,pca_p0_p2_spotify,pca_p0_p2_dumpster, pca_p0_p2_user])
+        pca_p0_p2.update_layout(template="plotly_dark", title="PCA Dimensions 0 and 2", title_x=0.5, height=500)
 
-        return div
+        # Create the divs
+        div0 = opy.plot(pca_p0_p1, auto_open=False, output_type="div")
+        div1 = opy.plot(pca_p1_p2, auto_open=False, output_type="div")
+        div2 = opy.plot(pca_p0_p2, auto_open=False, output_type="div")
+
+        # return div
+        return div0, div1, div2

@@ -20,19 +20,11 @@
         <div style="height: 300px; overflow-y: scroll;">
             {{recommendations|safe}}
         </div>
-        <div class="feedback-option">
-            <input type="radio" id="diverRecs" name="feedback" value="diverRecs" onclick="submitFeedback(this)">
-            <label for="diverRecs">I prefer Diver Song Recommendations</label>
-        </div>
     </div>
     <div style="flex: 1;">
         <h3>Spotify Recommendations</h3>
         <div style="height: 300px; overflow-y: scroll;">
             {{spotify_recs|safe}}
-        </div>
-        <div class="feedback-option">
-            <input type="radio" id="spotifyRecs" name="feedback" value="spotifyRecs" onclick="submitFeedback(this)">
-            <label for="spotifyRecs">I prefer Spotify Recommendations</label>
         </div>
     </div>
 </div>
@@ -42,23 +34,35 @@
     {{tracks|safe}}
 </div>
 <h2>Data Visualizations</h2>
-<div>TBD Visualizations</div>
-<h3>PCA Feature Space</h3>
-
+<div>
+    <h3>PCA Feature Space</h3>
+    {{pca_div0|safe}}
+    {{pca_div1|safe}}
+    {{pca_div2|safe}}
+</div>
+<div>
+<h3>Pitch Network</h3>
+    {{pitch_network|safe}}
+</div>
+<div>
+    <h3>Dumpster Diver Recommendations vs Spotify Recommendations</h3>
+    {{features_div|safe}}
+</div>
 
 <div>
-    {% block pitch %}
-    <h2>Pitch Network</h2>
-    {{pitch_network|safe}}
-  {% endblock %}
-        
-        
+    <h2>Feedback</h2>
+    <h3>Please leave us feedback!</h3>
+    <button id="openGoogleForm" onclick="window.open(`https://forms.gle/aLiQDjLAuk4W5gTN8`, '_blank')">Submit Feedback</button>
+</div>
+<br><br><br>
 {% endblock %}
 
 
 {% block scripts %}
 <script>
-
+    function openGoogleForm() {
+        window.open('https://www.google.com', '_blank');
+    }
 </script>
 {% endblock %}
 
