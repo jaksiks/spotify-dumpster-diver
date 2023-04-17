@@ -36,6 +36,10 @@
         </div>
     </div>
 </div>
+<div>
+    <h2>Feedback</h2>
+    <button id="openGoogleForm" onclick="openGoogleForm()">Submit Feedback</button>
+</div>
 
 <h2>Your Top Spotify Tracks</h2>
 <div>
@@ -58,7 +62,9 @@
 
 {% block scripts %}
 <script>
-
+    function openGoogleForm() {
+        window.open('https://www.google.com', '_blank');
+    }
 </script>
 {% endblock %}
 
