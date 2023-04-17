@@ -176,19 +176,14 @@ def generatePitchPlot(df, wrapper):
                     'timbre_02', 'timbre_03', 'timbre_04', 'timbre_05', 'timbre_06', 'timbre_07', 'timbre_08',
                     'timbre_09', 'timbre_10', 'timbre_11']
 
-    cleaned_df = pitch_df.drop(labels=[col for col in drop_columns if col in pitch_df.columns], axis=1)
+    pitch_df = pitch_df.drop(labels=[col for col in drop_columns if col in pitch_df.columns], axis=1)
 
     pitch_df[audio_analysis_cols] = pitch_df.apply(lambda x: wrapper.get_audio_analysis(x), axis=1)
-    idx = 0
 
-    plots = []
-
+    all_plots = go.Figure()
     for idx in range(len(pitch_df)):
         pitch_plot = go.Heatmap(arg=dict(z=pitch_df.iloc[idx]["pitches"],colorscale="Blues", showscale=False))
-        #pitch_plot.update_traces(coloraxis_showscale=False)
-        plots.append(pitch_plot)
-
-    all_plots = go.Figure(data=plots)
+        all_plots.add_trace(pitch_plot)
 
     # Update plot sizing
     all_plots.update_layout(
@@ -201,11 +196,11 @@ def generatePitchPlot(df, wrapper):
         ticktext = ["C","C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "G#/Ab", "A", "A#/Bb", "B"]
     ),
         margin=dict(t=0, b=0, l=0, r=0),
-        template="plotly_white",
-        xaxis_title="Pitch", yaxis_title="Time"
+        template="plotly_dark",
+        xaxis_title="Pitch", yaxis_title="Time",
+        title="Pitch Network"
 
     )
-    #print(pitch_df['name'])
     # Add dropdown
     songList = []
     
@@ -217,7 +212,7 @@ def generatePitchPlot(df, wrapper):
         dict(
             label = sname ,
             method = 'update',
-            args = [{"visibile": visibility}]
+            args = [{"visible": visibility}]
             )) 
         
     all_plots.update_layout(
@@ -229,7 +224,7 @@ def generatePitchPlot(df, wrapper):
                 direction="down",
                 pad={"r": 10, "t": 10},
                 showactive=True,
-                x=0.1,
+                x=0.5,
                 xanchor="left",
                 y=1.1,
                 yanchor="top"
@@ -237,27 +232,8 @@ def generatePitchPlot(df, wrapper):
         ]
     )
     all_plots.update_layout(coloraxis_showscale=False)
-    #all_plots.update_traces(marker_showscale=False)
-          
-    # # Add annotation
-    # pitch_plot.update_layout(
-    #     annotations=[
-    #         dict(text="Trace type:", showarrow=False,
-    #         x=0, y=1.085, yref="paper", align="left")
-    #     ]
-    # )
+
     #  # Create the div
     div = opy.plot(all_plots, auto_open=False, output_type="div")
     return div
     
-    buffer = BytesIO()
-    plt.savefig(buffer, format='png')
-    buffer.seek(0)
-    image_png = buffer.getvalue()
-    graph = base64.b64encode(image_png)
-    graph = graph.decode('utf-8')
-    buffer.close()
-    return graph
-
-class PitchDrop(ListView):
-    model = SongList
