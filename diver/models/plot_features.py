@@ -33,7 +33,7 @@ def subplot(final_MSD_recs, final_spo_recs, features, row, col):
             name='MSD ' + feature,  # specify name for legend
             marker=dict(color='rgb(251, 128, 114)'),  # specify color for histogram bars
             opacity=0.7,  # specify opacity of histogram bars
-            hovertext="song_title"
+            hovertext=final_MSD_recs["song_title"]
         )
 
         # Create histogram for Spotify dataframe
@@ -43,7 +43,7 @@ def subplot(final_MSD_recs, final_spo_recs, features, row, col):
             name='Spo '+ feature,  # specify name for legend
             marker=dict(color='rgb(179, 222, 105)'),  # specify color for histogram bars
             opacity=0.7,  # specify opacity of histogram bars
-            hovertext="name"
+            hovertext=final_spo_recs["name"]
         )
 
         return trace1, trace2
@@ -64,12 +64,9 @@ def subplot(final_MSD_recs, final_spo_recs, features, row, col):
 
     fig.update_layout(
         height=600,
-        width=1200,
-        title_text="MSD and Spotify Data",
+        title_text="MSD and Spotify Feature Data",
         title_x=0.5,
-        plot_bgcolor='black',
-        paper_bgcolor='black',
-        font=dict(color='white')
+        template="plotly_dark"
     )
     
     div = opy.plot(fig, auto_open=False, output_type="div")
