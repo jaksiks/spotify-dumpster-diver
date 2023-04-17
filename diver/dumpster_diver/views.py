@@ -1,12 +1,13 @@
+import sys
+sys.path.append('..')
 from spotify.spotify_wrapper import SpotifyWrapper
-from models.plot_features import generate_feature_plot
 from models.msd_model import MSDModel
 from django.shortcuts import render
 import os
 import pandas as pd
 import logging
 import copy
-
+from models.plot_features import generate_feature_plot
 
 # Create your views here.
 def index(request):
