@@ -44,22 +44,15 @@
 <h2>Data Visualizations</h2>
 <div>TBD Visualizations</div>
 <h3>PCA Feature Space</h3>
-{{pca_div|safe}}
+
 
 <div>
     {% block pitch %}
     <h2>Pitch Network</h2>
-    <form method="post" novalidate>
-      {% csrf_token %}
-      <table>
-        {{ form.as_table }}
-      </table>
-      <button type="submit">Update</button>
-    </form>
+    {{pitch_network|safe}}
   {% endblock %}
         
-        <img src="data:image/png;base64, {{pitch_network|safe}}" alt="" id="img">
-</div>
+        
 {% endblock %}
 
 

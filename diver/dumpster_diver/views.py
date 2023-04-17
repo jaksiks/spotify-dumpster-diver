@@ -4,15 +4,12 @@ from django.shortcuts import render
 import os
 import pandas as pd
 import logging
-from matplotlib import pyplot as plt
 import numpy as np
-import base64
-from io import BytesIO
-from .models import SongList
-from django.views.generic import ListView
 import copy
-
-
+import plotly.offline as opy
+import plotly.express as px
+import plotly.graph_objects as go
+import pandas as pd
 
 # Create your views here.
 def index(request):
@@ -106,8 +103,7 @@ def index(request):
     # msd_plot = wrapper.plot_msd()
     # features, parallel_cords, features_merged, parallel_cords_merged  = wrapper.plot_song_data(tracks_df, recommendations_df)
 
-    
-    pitchChart = generatePitchPlot(tracks_df, wrapper)
+    pitchChart = generatePitchPlot(pd.concat([spotify_recs_dumpster_features_df, user_tracks_df]), wrapper)
 
     # Prepare the data to be passed to the frontend
     context = {
@@ -116,7 +112,7 @@ def index(request):
         'recommendations': clean_msd_rec_df.to_html(classes='table table-bordered table-striped table-dark table-hover', table_id='rec-table', index=False),
         'spotify_recs': cleaned_spotify_recs_df.to_html(classes='table table-bordered table-striped table-dark table-hover', table_id='spotify-rec-table', index=False),
         'tracks': clean_tracks_df.to_html(classes='table table-bordered table-striped table-dark table-hover', table_id='tracks-table', index=False),
-        'pca_div': pca_div,
+        #'pca_div': pca_div,
         # 'msd_plot': msd_plot,
         # 'features': features,
         # 'parallel_cords': parallel_cords,
@@ -172,34 +168,95 @@ def generatePitchPlot(df, wrapper):
     10: "A#/Bb",
     11: "B"}
 
-    graph = 1
     pitch_df = df.copy()
     audio_analysis_cols = ["pitches", "timbres"]
+
+    drop_columns = ['index', 'msd_id', 'loudness', 'artist_id', 'artist_familiarity', 'artist_hotttnesss', 'song_id',
+                    'year', 'energy', 'danceability', 'tempo', 'pitch_network_average_degree',
+                    'pitch_network_entropy', 'pitch_network_mean_clustering_coeff', 'timbre_00', 'timbre_01',
+                    'timbre_02', 'timbre_03', 'timbre_04', 'timbre_05', 'timbre_06', 'timbre_07', 'timbre_08',
+                    'timbre_09', 'timbre_10', 'timbre_11']
+
+    cleaned_df = pitch_df.drop(labels=[col for col in drop_columns if col in pitch_df.columns], axis=1)
+
     pitch_df[audio_analysis_cols] = pitch_df.apply(lambda x: wrapper.get_audio_analysis(x), axis=1)
-    idx = 1
-    print(pitch_df.iloc[idx])
+    idx = 0
 
+    # plt.imshow(pitch_df.iloc[idx]["pitches"], aspect='auto')
+    # plt.xlabel("Pitch")
+    # plt.ylabel("Time")
+    # plt.title(f"{pitch_df.iloc[idx]['name']} by {pitch_df.iloc[idx]['artist']}")
+    # plt.xticks([x for x in pitches.keys()], pitches.values())
+    # ax.set_xticks(np.arange(0, 13) - 0.5, minor=True)
+    # plt.grid(which='minor', color='w', linestyle='--')
+    #xval = [x for x in pitches.keys()], pitches.values()
+    plots = []
+    #x= ["C","C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "G#/Ab", "A", "A#/Bb", "B"]
+    for idx in range(len(pitch_df)):
+        #pitch_plot = px.imshow(pitch_df.iloc[idx]["pitches"], aspect="auto",x= ["C","C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "G#/Ab", "A", "A#/Bb", "B"],)
+        pitch_plot = go.Heatmap(arg=dict(z=pitch_df.iloc[idx]["pitches"],colorscale="Blues", showscale=False))
+        #pitch_plot.update_traces(coloraxis_showscale=False)
+        plots.append(pitch_plot)
 
-    plt.switch_backend("AGG")
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    all_plots = go.Figure(data=plots)
 
-    plt.imshow(pitch_df.iloc[idx]["pitches"], aspect='auto')
-    plt.xlabel("Pitch")
-    plt.ylabel("Time")
-    plt.title(f"{pitch_df.iloc[idx]['name']} by {pitch_df.iloc[idx]['artist']}")
-    plt.xticks([x for x in pitches.keys()], pitches.values())
-    ax.set_xticks(np.arange(0, 13) - 0.5, minor=True)
-    plt.grid(which='minor', color='w', linestyle='--')
+    # Update plot sizing
+    all_plots.update_layout(
+        width=1000,
+        height=800,
+        autosize=False,
+        xaxis = dict(
+        tickmode = 'array',
+        tickvals = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+        ticktext = ["C","C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "G#/Ab", "A", "A#/Bb", "B"]
+    ),
+        margin=dict(t=0, b=0, l=0, r=0),
+        template="plotly_white",
+        xaxis_title="Pitch", yaxis_title="Time"
+
+    )
+    #print(pitch_df['name'])
+    # Add dropdown
+    songList = []
     
-    buffer = BytesIO()
-    plt.savefig(buffer, format='png')
-    buffer.seek(0)
-    image_png = buffer.getvalue()
-    graph = base64.b64encode(image_png)
-    graph = graph.decode('utf-8')
-    buffer.close()
-    return graph
-
-class PitchDrop(ListView):
-    model = SongList
+    for idx in range(len(pitch_df)):
+        visibility = [False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False]
+        sname = pitch_df.iloc[idx]['name']
+        visibility[idx] = True
+        songList.append(
+        dict(
+            label = sname ,
+            method = 'update',
+            args = [{"visibile": visibility}]
+            )) 
+        
+    all_plots.update_layout(
+        updatemenus=[
+            dict(
+                buttons=list(
+                    songList
+                ),
+                direction="down",
+                pad={"r": 10, "t": 10},
+                showactive=True,
+                x=0.1,
+                xanchor="left",
+                y=1.1,
+                yanchor="top"
+            ),
+        ]
+    )
+    all_plots.update_layout(coloraxis_showscale=False)
+    #all_plots.update_traces(marker_showscale=False)
+          
+    # # Add annotation
+    # pitch_plot.update_layout(
+    #     annotations=[
+    #         dict(text="Trace type:", showarrow=False,
+    #         x=0, y=1.085, yref="paper", align="left")
+    #     ]
+    # )
+    #  # Create the div
+    div = opy.plot(all_plots, auto_open=False, output_type="div")
+    return div
+    
