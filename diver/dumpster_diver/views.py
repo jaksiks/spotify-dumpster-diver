@@ -4,12 +4,9 @@ from django.shortcuts import render
 import os
 import pandas as pd
 import logging
-from matplotlib import pyplot as plt
 import numpy as np
-import base64
-from io import BytesIO
-from .models import SongList
-from django.views.generic import ListView
+import plotly.graph_objects as go
+import pandas as pd
 import copy
 
 
@@ -160,26 +157,86 @@ def generatePitchPlot(df, wrapper):
     print(pitch_df.iloc[idx])
 
 
-    plt.switch_backend("AGG")
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    # plt.switch_backend("AGG")
+    # fig = plt.figure()
+    # ax = fig.add_subplot(1, 1, 1)
 
-    plt.imshow(pitch_df.iloc[idx]["pitches"], aspect='auto')
-    plt.xlabel("Pitch")
-    plt.ylabel("Time")
-    plt.title(f"{pitch_df.iloc[idx]['name']} by {pitch_df.iloc[idx]['artist']}")
-    plt.xticks([x for x in pitches.keys()], pitches.values())
-    ax.set_xticks(np.arange(0, 13) - 0.5, minor=True)
-    plt.grid(which='minor', color='w', linestyle='--')
+    # plt.imshow(pitch_df.iloc[idx]["pitches"], aspect='auto')
+    # plt.xlabel("Pitch")
+    # plt.ylabel("Time")
+    # plt.title(f"{pitch_df.iloc[idx]['name']} by {pitch_df.iloc[idx]['artist']}")
+    # plt.xticks([x for x in pitches.keys()], pitches.values())
+    # ax.set_xticks(np.arange(0, 13) - 0.5, minor=True)
+    # plt.grid(which='minor', color='w', linestyle='--')
     
-    buffer = BytesIO()
-    plt.savefig(buffer, format='png')
-    buffer.seek(0)
-    image_png = buffer.getvalue()
-    graph = base64.b64encode(image_png)
-    graph = graph.decode('utf-8')
-    buffer.close()
-    return graph
+    # buffer = BytesIO()
+    # plt.savefig(buffer, format='png')
+    # buffer.seek(0)
+    # image_png = buffer.getvalue()
+    # graph = base64.b64encode(image_png)
+    # graph = graph.decode('utf-8')
+    # buffer.close()
+    # return graph
 
-class PitchDrop(ListView):
-    model = SongList
+
+
+# load dataset
+df = pd.read_csv("https://raw.githubusercontent.com/plotly/datasets/master/volcano.csv")
+
+# create figure
+fig = go.Figure()
+
+# Add surface trace
+fig.add_trace(go.Surface(z=df.values.tolist(), colorscale="Viridis"))
+
+# Update plot sizing
+fig.update_layout(
+    width=800,
+    height=900,
+    autosize=False,
+    margin=dict(t=0, b=0, l=0, r=0),
+    template="plotly_white",
+)
+
+# Update 3D scene options
+fig.update_scenes(
+    aspectratio=dict(x=1, y=1, z=0.7),
+    aspectmode="manual"
+)
+
+# Add dropdown
+fig.update_layout(
+    updatemenus=[
+        dict(
+            buttons=list([
+                dict(
+                    args=["type", "song1"],
+                    label="Song1",
+                    method="restyle"
+                ),
+                dict(
+                    args=["type", "song2"],
+                    label="Song2",
+                    method="restyle"
+                )
+            ]),
+            direction="down",
+            pad={"r": 10, "t": 10},
+            showactive=True,
+            x=0.1,
+            xanchor="left",
+            y=1.1,
+            yanchor="top"
+        ),
+    ]
+)
+
+# Add annotation
+fig.update_layout(
+    annotations=[
+        dict(text="Trace type:", showarrow=False,
+        x=0, y=1.085, yref="paper", align="left")
+    ]
+)
+
+fig.show()
