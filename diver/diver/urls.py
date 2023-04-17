@@ -24,6 +24,5 @@ urlpatterns = [
 
     # ex: /
     path('', views.index, name='index'),
-    path('', views.PitchDrop.as_view(), name='pitch_song_list')
 
 ]
