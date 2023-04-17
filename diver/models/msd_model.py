@@ -155,22 +155,10 @@ class MSDModel():
         df_spotify = pd.concat([spotify_recs_dumpster_features_df])
         
         df_dumpster = pd.concat([msd_recs_dumpster_features_df])
-        
-        print(df_background.columns)
-        print(df_spotify.columns)
-        print(df_dumpster.columns)
 
-        # Create the plots
-        # pca_plot = px.scatter_3d(
-        #     df,
-        #     x="PCA 0",
-        #     y="PCA 1",
-        #     z="PCA 2",
-        #     template="plotly_dark",
-        #     height=1200,
-        #     color="song_hotttnesss",
-        #     symbol="Source"
-        # )
+        #
+        # Create PCA Plot for PCA 0 and PCA 1
+        #
         pca_p0_p1_background = go.Scattergl(
             x = df_background["PCA 0"],
             y = df_background["PCA 1"],
@@ -210,6 +198,9 @@ class MSDModel():
         pca_p0_p1 = go.Figure(data=[pca_p0_p1_background,pca_p0_p1_spotify,pca_p0_p1_dumpster])
         pca_p0_p1.update_layout(template="plotly_dark", title="PCA 0 / 1")
 
+        #
+        # Create PCA Plot for PCA 0 and PCA 1
+        #
         pca_p1_p2_background = go.Scattergl(
             x = df_background["PCA 1"],
             y = df_background["PCA 2"],
@@ -249,6 +240,9 @@ class MSDModel():
         pca_p1_p2 = go.Figure(data=[pca_p1_p2_background,pca_p1_p2_spotify,pca_p1_p2_dumpster])
         pca_p1_p2.update_layout(template="plotly_dark", title="PCA 1 / 2")
 
+        #
+        # Create PCA Plot for PCA 0 and PCA 1
+        #
         pca_p0_p2_background = go.Scattergl(
             x = df_background["PCA 0"],
             y = df_background["PCA 2"],
@@ -288,81 +282,7 @@ class MSDModel():
         pca_p0_p2 = go.Figure(data=[pca_p0_p2_background,pca_p0_p2_spotify,pca_p0_p2_dumpster])
         pca_p0_p2.update_layout(template="plotly_dark", title="PCA 0 / 2")
 
-        # pca_p0_p1 = px.Scattergl(
-        #     df, 
-        #     x="PCA 0",
-        #     y="PCA 1",
-        #     template="plotly_dark",
-        #     height=1200,
-        #     color="song_hotttnesss",
-        #     symbol="Source"
-        # )
-
-        # pca_p1_p2 = px.scattergl(
-        #     df, 
-        #     x="PCA 1",
-        #     y="PCA 2",
-        #     template="plotly_dark",
-        #     height=1200,
-        #     color="song_hotttnesss",
-        #     symbol="Source"
-        # )
-
-        # pca_p0_p2 = px.scattergl(
-        #     df, 
-        #     x="PCA 0",
-        #     y="PCA 2",
-        #     template="plotly_dark",
-        #     height=1200,
-        #     color="song_hotttnesss",
-        #     symbol="Source"
-        # )
-        '''
-        background_pca = px.scatter_3d(
-            background_pca_df,
-            x="PCA 0",
-            y="PCA 1",
-            z="PCA 2",
-            template="plotly_dark",
-            height=1200,
-            color="song_hotttnesss"
-        )
-        background_pca.data[0].update(marker={"symbol": "circle-open"})
-
-        user_pca = go.Scatter3d(
-            user_dumpster_diver_features_df,
-            x="PCA 0",
-            y="PCA 1",
-            z="PCA 2",
-            template="plotly_dark",
-            height=1200,
-            opacity=0.5
-        )
-        user_pca.data[0].update(marker={"color": "yellow", "symbol": "diamond"})
-
-        spotify_pca = px.scatter_3d(
-            spotify_recs_dumpster_features_df,
-            x="PCA 0",
-            y="PCA 1",
-            z="PCA 2",
-            template="plotly_dark",
-            height=1200
-        )
-        spotify_pca.data[0].update(marker={"color": "#1DB954", "symbol": "circle"})
-
-        msd_pca = px.scatter_3d(
-            msd_recs_dumpster_features_df,
-            x="PCA 0",
-            y="PCA 1",
-            z="PCA 2",
-            template="plotly_dark",
-            height=1200
-        )
-        msd_pca.data[0].update(marker={"color": "#BC544B", "symbol": "square"})
-        '''
-
-        # Create the div
-        # div = opy.plot(pca_plot, auto_open=False, output_type="div")
+        # Create the divs
         div0 = opy.plot(pca_p0_p1, auto_open=False, output_type="div")
         div1 = opy.plot(pca_p1_p2, auto_open=False, output_type="div")
         div2 = opy.plot(pca_p0_p2, auto_open=False, output_type="div")
