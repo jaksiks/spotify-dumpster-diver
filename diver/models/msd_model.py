@@ -4,17 +4,16 @@ import pandas as pd
 import plotly.offline as opy
 import plotly.express as px
 from plotly.subplots import make_subplots
-from sklearn.preprocessing import MaxAbsScaler
+from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 from sklearn.neighbors import NearestNeighbors
 from typing import Tuple
 
 
 N_JOBS = int(os.cpu_count() * 0.8)
-FEATURE_COLUMNS = ["loudness", "tempo", "pitch_network_average_degree",
-                   "pitch_network_entropy", "pitch_network_mean_clustering_coeff",
-                   "timbre_00", "timbre_01", "timbre_02", "timbre_03", "timbre_04", "timbre_05", 
-                   "timbre_06", "timbre_07", "timbre_08", "timbre_09", "timbre_10", "timbre_11"]
+FEATURE_COLUMNS = ['loudness',  'tempo',
+                    'pitch_network_average_degree', 'pitch_network_entropy', 'pitch_network_mean_clustering_coeff',
+                    'timbre_network_average_degree', 'timbre_network_entropy', 'timbre_network_mean_clustering_coeff',] 
 
 
 class MSDModel():
@@ -45,7 +44,7 @@ class MSDModel():
         self.mucked_with_df["artist_hotttnesss"] = self.mucked_with_df["artist_hotttnesss"].fillna(0)
 
         # Standardize the data
-        self.scalar = MaxAbsScaler()
+        self.scalar = StandardScaler()
         self.mucked_with_df[self.feature_columns] = self.scalar.fit_transform(self.mucked_with_df[self.feature_columns])
 
         # Fit the PCA

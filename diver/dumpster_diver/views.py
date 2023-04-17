@@ -56,7 +56,7 @@ def index(request):
     #TODO: Add the spotify recs to the PCA plot
 
     # Load the MSDModel
-    df_filepath = "spotify/msd.pkl"
+    df_filepath = "spotify/msd_new_timbre.pkl"
     logger.info("Loading the MSD Model: {}".format(df_filepath))
     df = pd.read_pickle(df_filepath)
     msd_model = MSDModel(df)

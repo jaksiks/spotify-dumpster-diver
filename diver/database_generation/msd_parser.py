@@ -51,11 +51,18 @@ def msd_h5_to_df(filename: str) -> pd.DataFrame:
         temp_dict["song_hotttnesss"] = 0
 
     # Get some summary features for the pitch arrays
-    average_degree, graph_entropy, average_clustering = \
+    average_pitch_degree, graph_pitch_entropy, average_pitch_clustering = \
         compute_pitch_network_stats(analysis_dict["segments_pitches"])
-    temp_dict["pitch_network_average_degree"] = average_degree
-    temp_dict["pitch_network_entropy"] = graph_entropy
-    temp_dict["pitch_network_mean_clustering_coeff"] = average_clustering
+    temp_dict["pitch_network_average_degree"] = average_pitch_degree
+    temp_dict["pitch_network_entropy"] = graph_pitch_entropy
+    temp_dict["pitch_network_mean_clustering_coeff"] = average_pitch_clustering
+
+    # Get some summary features for the timbre arrays
+    average_timbre_degree, graph_timbre_entropy, average_timbre_clustering = \
+        compute_pitch_network_stats(analysis_dict["segments_timbre"])
+    temp_dict["timbre_network_average_degree"] = average_timbre_degree
+    temp_dict["timbre_network_entropy"] = graph_timbre_entropy
+    temp_dict["timbre_network_mean_clustering_coeff"] = average_timbre_clustering
 
     # Get summary features of the timbre
     avg_timbres = np.mean(analysis_dict["segments_timbre"], axis=0)

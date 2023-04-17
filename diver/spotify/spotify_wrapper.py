@@ -118,6 +118,7 @@ class SpotifyWrapper:
 
         # Compute the pitch network stats and create the pitch network
         pitch_network_data_list = []
+        timbre_network_data_list = []
         for song in song_arrays:
             pitch_array = np.array([segment['pitches'] for segment in song])
             pitch_network, pitch_codewords = create_pitch_network(pitch_array)
@@ -129,6 +130,16 @@ class SpotifyWrapper:
                 'pitch_network': pitch_network,
                 'pitch_codewords': pitch_codewords
             })
+            # Get some summary features for the timbre arrays
+            timbre_array = np.array([segment['timbre'] for segment in song])
+            average_degree, graph_entropy, average_clustering = \
+                compute_pitch_network_stats(timbre_array)
+            timbre_network_data_list.append({
+                'average_degree': average_degree,
+                'graph_entropy': graph_entropy,
+                'average_clustering': average_clustering
+            })
+
 
         # Compute the average timbre values for each track
         average_timbre_values = []
@@ -150,8 +161,8 @@ class SpotifyWrapper:
         combined_data = []
         dumpster_diver_features = []
 
-        for track, details, features, song_array, genres, pitch_stats in \
-                zip(spotify_tracks, track_details, audio_features, song_arrays, track_genres, pitch_network_data_list):
+        for track, details, features, song_array, genres, pitch_stats, timbre_stats in \
+                zip(spotify_tracks, track_details, audio_features, song_arrays, track_genres, pitch_network_data_list, timbre_network_data_list):
             track_info = {
                 'track_id': track['track']['id'],
                 'name': track['track']['name'],
@@ -173,18 +184,9 @@ class SpotifyWrapper:
                 'pitch_network_average_degree': pitch_stats['average_degree'],
                 'pitch_network_entropy': pitch_stats['graph_entropy'],
                 'pitch_network_mean_clustering_coeff': pitch_stats['average_clustering'],
-                'timbre_00': average_timbre[0],
-                'timbre_01': average_timbre[1],
-                'timbre_02': average_timbre[2],
-                'timbre_03': average_timbre[3],
-                'timbre_04': average_timbre[4],
-                'timbre_05': average_timbre[5],
-                'timbre_06': average_timbre[6],
-                'timbre_07': average_timbre[7],
-                'timbre_08': average_timbre[8],
-                'timbre_09': average_timbre[9],
-                'timbre_10': average_timbre[10],
-                'timbre_11': average_timbre[11],
+                'timbre_network_average_degree': timbre_stats['average_degree'],
+                'timbre_network_entropy': timbre_stats['graph_entropy'],
+                'timbre_network_mean_clustering_coeff': timbre_stats['average_clustering'],
                 'pitch_network': pitch_stats['pitch_network'],
                 'pitch_codewords': pitch_stats['pitch_codewords']
             }
@@ -271,7 +273,7 @@ class SpotifyWrapper:
     def plot_msd(self):
 
         # Replace the pkl file location below with public-facing URL, as needed
-        df = pd.read_pickle("spotify/msd.pkl")
+        df = pd.read_pickle("spotify/msd_new_timbre.pkl")
 
         # print('msd_df')
         # print(df)
