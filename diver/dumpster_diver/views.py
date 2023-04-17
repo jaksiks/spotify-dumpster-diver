@@ -1,4 +1,5 @@
 from spotify.spotify_wrapper import SpotifyWrapper
+from models.plot_features import generate_feature_plot
 from models.msd_model import MSDModel
 from django.shortcuts import render
 import os
@@ -96,6 +97,9 @@ def index(request):
     pca_div = msd_model.create_pca_plot(user_dumpster_diver_features_df,
                                         msd_recs_df,
                                         spotify_recs_dumpster_features_df)
+    # Generate our Feature plots
+    spotify_recs_dumpster_features_df["popularity"] = spotify_recs_df["popularity"]
+    features_div = generate_feature_plot(msd_recs_df, spotify_recs_dumpster_features_df)
     # msd_plot = wrapper.plot_msd()
     # features, parallel_cords, features_merged, parallel_cords_merged  = wrapper.plot_song_data(tracks_df, recommendations_df)
 
@@ -106,7 +110,8 @@ def index(request):
         'recommendations': clean_msd_rec_df.to_html(classes='table table-bordered table-striped table-dark table-hover', table_id='rec-table', index=False),
         'spotify_recs': cleaned_spotify_recs_df.to_html(classes='table table-bordered table-striped table-dark table-hover', table_id='rec-table', index=False),
         'tracks': clean_tracks_df.to_html(classes='table table-bordered table-striped table-dark table-hover', table_id='tracks-table', index=False),
-        'pca_div': pca_div
+        'pca_div': pca_div,
+        'features_dif': features_div,
         # 'msd_plot': msd_plot,
         # 'features': features,
         # 'parallel_cords': parallel_cords,
