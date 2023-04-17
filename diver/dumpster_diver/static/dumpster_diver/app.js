@@ -18,6 +18,17 @@ $(document).ready( function () {
         }
     });
 
+    $('#spotify-rec-table').DataTable({
+        paging: false,
+        "info": false,
+        order: [[2, 'asc']],
+        responsive: true,
+        "searching": false,
+        rowId: function(row) {
+            return row[0] + ' ' + row[1]
+        }
+    });
+
     $('#tracks-table').DataTable({
         data: null, render: function ( data, type, row ) {
             return '<a href="user_project_edit.php?project='+data.projects.projectid+'" target="_blank">User Project Edit Page</a>'
