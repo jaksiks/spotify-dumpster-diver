@@ -58,7 +58,6 @@ def subplot(final_MSD_recs, final_spo_recs, user_songs, features, row, col):
             opacity=0.7,  # specify opacity of histogram bars
             hovertext=final_spo_recs["name"]
         )
-        import pdb; pdb.set_trace()
 
         return trace1, trace2, trace3
 
