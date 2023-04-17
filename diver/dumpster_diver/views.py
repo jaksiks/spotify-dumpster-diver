@@ -8,7 +8,8 @@ import pandas as pd
 import logging
 import numpy as np
 import copy
-from models.plot_features import generate_feature_plotimport plotly.offline as opy
+from models.plot_features import generate_feature_plot
+import plotly.offline as opy
 import plotly.express as px
 import plotly.graph_objects as go
 
@@ -165,19 +166,6 @@ def clean_dataframe(df, tracks=False, rename_columns=None):
 
 def generatePitchPlot(df, wrapper):
      #compile data for pitch network
-    pitches = {
-    0: "C",
-    1: "C#/Db",
-    2: "D",
-    3: "D#/Eb",
-    4: "E",
-    5: "F",
-    6: "F#/Gb",
-    7: "G",
-    8: "G#/Ab",
-    9: "A",
-    10: "A#/Bb",
-    11: "B"}
 
     pitch_df = df.copy()
     audio_analysis_cols = ["pitches", "timbres"]
@@ -193,18 +181,9 @@ def generatePitchPlot(df, wrapper):
     pitch_df[audio_analysis_cols] = pitch_df.apply(lambda x: wrapper.get_audio_analysis(x), axis=1)
     idx = 0
 
-    # plt.imshow(pitch_df.iloc[idx]["pitches"], aspect='auto')
-    # plt.xlabel("Pitch")
-    # plt.ylabel("Time")
-    # plt.title(f"{pitch_df.iloc[idx]['name']} by {pitch_df.iloc[idx]['artist']}")
-    # plt.xticks([x for x in pitches.keys()], pitches.values())
-    # ax.set_xticks(np.arange(0, 13) - 0.5, minor=True)
-    # plt.grid(which='minor', color='w', linestyle='--')
-    #xval = [x for x in pitches.keys()], pitches.values()
     plots = []
-    #x= ["C","C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "G#/Ab", "A", "A#/Bb", "B"]
+
     for idx in range(len(pitch_df)):
-        #pitch_plot = px.imshow(pitch_df.iloc[idx]["pitches"], aspect="auto",x= ["C","C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "G#/Ab", "A", "A#/Bb", "B"],)
         pitch_plot = go.Heatmap(arg=dict(z=pitch_df.iloc[idx]["pitches"],colorscale="Blues", showscale=False))
         #pitch_plot.update_traces(coloraxis_showscale=False)
         plots.append(pitch_plot)
