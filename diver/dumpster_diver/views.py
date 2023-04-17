@@ -108,8 +108,6 @@ def index(request):
     spotify_recs_dumpster_features_df["popularity"] = spotify_recs_df["popularity"]
     user_dumpster_diver_features_df["popularity"] = user_tracks_df["popularity"]
     features_div = generate_feature_plot(msd_recs_df, spotify_recs_dumpster_features_df, user_dumpster_diver_features_df)
-    # msd_plot = wrapper.plot_msd()
-    # features, parallel_cords, features_merged, parallel_cords_merged  = wrapper.plot_song_data(tracks_df, recommendations_df)
 
     pitchChart = generatePitchPlot(pd.concat([spotify_recs_dumpster_features_df, user_tracks_df]), wrapper)
 
@@ -125,11 +123,6 @@ def index(request):
         'pca_div1': pca_div1,
         'pca_div2': pca_div2,
         'pitch_network': pitchChart
-        # 'msd_plot': msd_plot,
-        # 'features': features,
-        # 'parallel_cords': parallel_cords,
-        # 'features_merged': features_merged,
-        # 'parallel_cords_merged': parallel_cords_merged,
         
     }
 
@@ -182,12 +175,12 @@ def generatePitchPlot(df, wrapper):
 
     all_plots = go.Figure()
     for idx in range(len(pitch_df)):
-        pitch_plot = go.Heatmap(arg=dict(z=pitch_df.iloc[idx]["pitches"],colorscale="Blues", showscale=False))
+        pitch_plot = go.Heatmap(arg=dict(z=pitch_df.iloc[idx]["pitches"],colorscale="Jet", showscale=False))
         all_plots.add_trace(pitch_plot)
 
     # Update plot sizing
     all_plots.update_layout(
-        width=1000,
+        width=1500,
         height=800,
         autosize=False,
         xaxis = dict(
@@ -195,10 +188,10 @@ def generatePitchPlot(df, wrapper):
         tickvals = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
         ticktext = ["C","C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "G#/Ab", "A", "A#/Bb", "B"]
     ),
-        margin=dict(t=0, b=0, l=0, r=0),
+        margin=dict(t=0, b=20, l=0, r=20),
         template="plotly_dark",
         xaxis_title="Pitch", yaxis_title="Time",
-        title="Pitch Network"
+        title="Choose Song to Display:",      
 
     )
     # Add dropdown
@@ -222,16 +215,16 @@ def generatePitchPlot(df, wrapper):
                     songList
                 ),
                 direction="down",
+                font={"color":"rgb(57,255,20)"},
                 pad={"r": 10, "t": 10},
                 showactive=True,
-                x=0.5,
+                x=0.2,
                 xanchor="left",
                 y=1.1,
                 yanchor="top"
             ),
         ]
     )
-    all_plots.update_layout(coloraxis_showscale=False)
 
     #  # Create the div
     div = opy.plot(all_plots, auto_open=False, output_type="div")
