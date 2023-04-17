@@ -3,6 +3,8 @@ import numpy as np
 import pandas as pd
 import spotipy
 import yaml
+import time
+from typing import Dict, Tuple, List
 from database_generation.pitch_network import compute_pitch_network_stats, create_pitch_network
 from spotipy.oauth2 import SpotifyOAuth
 from pathlib import Path
@@ -39,7 +41,7 @@ class SpotifyWrapper:
                                                             scope=scope))
 
 #    def get_user_recent_tracks(self, limit: int = 5) -> pd.DataFrame:
-    def get_user_recent_tracks(self, top_tracks_limit: int = 5, recent_tracks_limit: int = 0) -> tuple[pd.DataFrame, pd.DataFrame]:
+    def get_user_recent_tracks(self, top_tracks_limit: int = 5, recent_tracks_limit: int = 0) -> Tuple[pd.DataFrame, pd.DataFrame]:
 
         """
         Retrieves the recently played songs by a user with song features
@@ -53,12 +55,57 @@ class SpotifyWrapper:
         #recent_tracks = self.sp.current_user_recently_played(limit=recent_tracks_limit)
         top_tracks = self.sp.current_user_top_tracks(limit=top_tracks_limit)
 
-        # Combine recent and top tracks
-        #combined_tracks = recent_tracks['items'] + [{'track': item} for item in top_tracks['items']]
-        combined_tracks = [{'track': item} for item in top_tracks['items']]
+        # Parse and return the dataframes
+        return self._generate_dfs([{'track': item} for item in top_tracks['items']])
 
+    def get_spotify_recommendations(self,
+                                    seed_artists=None, seed_genres=None, seed_tracks=None,
+                                    limit=20, market=None,
+                                    target_acousticness=None, target_duration_ms=None, target_instrumentalness=None,
+                                    target_key=None, target_liveness=None, target_loudness=None, target_mode=None,
+                                    target_popularity=None, target_speechiness=None, target_tempo=None,
+                                    target_time_signature=None, target_valence=None, max_popularity=None,
+                                    sleep_time=10,
+                                    ) -> Tuple[pd.DataFrame, pd.DataFrame]:
+
+        params = {
+            "limit": limit,
+            "seed_artists": seed_artists if seed_artists else None,
+            "seed_genres": seed_genres if seed_genres else None,
+            "seed_tracks": seed_tracks if seed_tracks else None,
+            "market": market,
+            "target_acousticness": target_acousticness,
+            "target_duration_ms": target_duration_ms,
+            "target_instrumentalness": target_instrumentalness,
+            "target_key": target_key,
+            "target_liveness": target_liveness,
+            "target_loudness": target_loudness,
+            "target_mode": target_mode,
+            "target_popularity": target_popularity,
+            "target_speechiness": target_speechiness,
+            "target_tempo": target_tempo,
+            "target_time_signature": target_time_signature,
+            "target_valence": target_valence,
+            "max_popularity": max_popularity
+        }
+
+        # Remove None values from the params dictionary
+        params = {k: v for k, v in params.items() if v is not None}
+        recommendations = None
+
+        # Loop until we get a recommendation
+        while recommendations is None:
+            recommendations = self.sp.recommendations(**params)
+            if len(recommendations["tracks"]) == 0:
+                time.sleep(sleep_time)
+                recommendations = None
+                
+        return self._generate_dfs([{'track': item} for item in recommendations["tracks"]])
+        
+        
+    def _generate_dfs(self, spotify_tracks: List[Dict]) -> Tuple[pd.DataFrame, pd.DataFrame]:
         # Extract track IDs
-        track_ids = [track['track']['id'] for track in combined_tracks]
+        track_ids = [track['track']['id'] for track in spotify_tracks]
 
         # Get the track details including popularity
         track_details = [self.sp.track(track_id) for track_id in track_ids]
@@ -101,10 +148,10 @@ class SpotifyWrapper:
 
         # Combine track information and audio features
         combined_data = []
-        pitch_network_data = []
+        dumpster_diver_features = []
 
         for track, details, features, song_array, genres, pitch_stats in \
-                zip(combined_tracks, track_details, audio_features, song_arrays, track_genres, pitch_network_data_list):
+                zip(spotify_tracks, track_details, audio_features, song_arrays, track_genres, pitch_network_data_list):
             track_info = {
                 'track_id': track['track']['id'],
                 'name': track['track']['name'],
@@ -117,10 +164,10 @@ class SpotifyWrapper:
             }
             combined_data.append({**track_info, **features})
 
-            pitch_network_data_dict = {
+            dumpster_diver_features_dict = {
                 'track_id': track['track']['id'],
-                'artist_familiarity': np.nan,
-                'artist_hotttnesss': np.nan,
+                'name': track['track']['name'],
+                'artist': track['track']['artists'][0]['name'],
                 'loudness': features['loudness'],
                 'tempo': features['tempo'],
                 'pitch_network_average_degree': pitch_stats['average_degree'],
@@ -143,92 +190,17 @@ class SpotifyWrapper:
             }
 
             # Update pitch network data dictionary with pitch_stats
-            pitch_network_data_dict.update(pitch_stats)
-            pitch_network_data.append(pitch_network_data_dict)
+            dumpster_diver_features_dict.update(pitch_stats)
+            dumpster_diver_features.append(dumpster_diver_features_dict)
 
         # Store everything into a dataframe
         df = pd.DataFrame(combined_data)
 
         # Create pitch_network DataFrame
-        pitch_network_df = pd.DataFrame(pitch_network_data)
+        dumpster_diver_features_df = pd.DataFrame(dumpster_diver_features)
 
-        return df, pitch_network_df
-
-    def get_spotify_recommendations(self,
-                                    seed_artists=None, seed_genres=None, seed_tracks=None,
-                                    limit=20, market=None,
-                                    target_acousticness=None, target_duration_ms=None, target_instrumentalness=None,
-                                    target_key=None, target_liveness=None, target_loudness=None, target_mode=None,
-                                    target_popularity=None, target_speechiness=None, target_tempo=None,
-                                    target_time_signature=None, target_valence=None, max_popularity=None
-                                    ):
-
-        params = {
-            "limit": limit,
-            "seed_artists": seed_artists if seed_artists else None,
-            "seed_genres": seed_genres if seed_genres else None,
-            "seed_tracks": seed_tracks if seed_tracks else None,
-            "market": market,
-            "target_acousticness": target_acousticness,
-            "target_duration_ms": target_duration_ms,
-            "target_instrumentalness": target_instrumentalness,
-            "target_key": target_key,
-            "target_liveness": target_liveness,
-            "target_loudness": target_loudness,
-            "target_mode": target_mode,
-            "target_popularity": target_popularity,
-            "target_speechiness": target_speechiness,
-            "target_tempo": target_tempo,
-            "target_time_signature": target_time_signature,
-            "target_valence": target_valence,
-            "max_popularity": max_popularity
-        }
-
-        # Remove None values from the params dictionary
-        params = {k: v for k, v in params.items() if v is not None}
-
-        recommendations = self.sp.recommendations(**params)
-
-        if recommendations:
-            track_ids = [track['id'] for track in recommendations['tracks']]
-
-            # Get the track details including popularity
-            track_details = [self.sp.track(track_id) for track_id in track_ids]
-
-            # Get the audio features of the songs
-            audio_features = self.sp.audio_features(track_ids)
-
-            # Get the genres of the songs
-            track_genres = []
-            for track_id in track_ids:
-                track = self.sp.track(track_id)
-                artist_id = track['artists'][0]['id']
-                artist = self.sp.artist(artist_id)
-                genres = artist.get('genres')
-                track_genres.append(genres)
-
-            # Combine track information and audio features
-            combined_data = []
-            for track, details, features, genres in zip(recommendations['tracks'], track_details, audio_features,
-                                                        track_genres):
-                track_info = {
-                    'track_id': track['id'],
-                    'name': track['name'],
-                    'artist': track['artists'][0]['name'],
-                    'artist_id': track['artists'][0]['id'],
-                    'popularity': details['popularity'],
-                    'genres': genres
-                }
-                combined_data.append({**track_info, **features})
-
-            # Store everything into a dataframe
-            df = pd.DataFrame(combined_data)
-            return df
-
-        else:
-            # TODO: Add logging
-            print("Error: Unable to fetch recommendations")
-            return None
+        return df, dumpster_diver_features_df
+    
 
     def plot_song_data(self, df_songs, df_recs):
         if df_recs.empty:
@@ -295,6 +267,7 @@ class SpotifyWrapper:
 
         return div, div2, div3, div4
     
+
     def plot_msd(self):
 
         # Replace the pkl file location below with public-facing URL, as needed

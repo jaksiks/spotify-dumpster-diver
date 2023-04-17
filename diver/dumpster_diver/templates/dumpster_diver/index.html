@@ -13,9 +13,28 @@
     <span id="nav-team-names">Dahiana Mejia, Joseph Horth, Philip Markunas, Seth Jaksik, Shawn Abernethy, Stephen Myslicki</span>
 </div>
 
-<h2>Diver Song Recommendations</h2>
-<div>
-    {{recommendations|safe}}
+<h2>Diver Song Recommendations & Spotify Recommendations</h2>
+<div style="display: flex; justify-content: space-around;">
+    <div style="flex: 1;">
+        <h3>Diver Song Recommendations</h3>
+        <div style="height: 300px; overflow-y: scroll;">
+            {{recommendations|safe}}
+        </div>
+        <div class="feedback-option">
+            <input type="radio" id="diverRecs" name="feedback" value="diverRecs" onclick="submitFeedback(this)">
+            <label for="diverRecs">I prefer Diver Song Recommendations</label>
+        </div>
+    </div>
+    <div style="flex: 1;">
+        <h3>Spotify Recommendations</h3>
+        <div style="height: 300px; overflow-y: scroll;">
+            {{spotify_recs|safe}}
+        </div>
+        <div class="feedback-option">
+            <input type="radio" id="spotifyRecs" name="feedback" value="spotifyRecs" onclick="submitFeedback(this)">
+            <label for="spotifyRecs">I prefer Spotify Recommendations</label>
+        </div>
+    </div>
 </div>
 
 <h2>Your Top Spotify Tracks</h2>
@@ -24,6 +43,9 @@
 </div>
 <h2>Data Visualizations</h2>
 <div>TBD Visualizations</div>
+<h3>PCA Feature Space</h3>
+{{pca_div|safe}}
+
 <div>
     {% block pitch %}
     <h2>Pitch Network</h2>
@@ -38,23 +60,6 @@
         
         <img src="data:image/png;base64, {{pitch_network|safe}}" alt="" id="img">
 </div>
-
-<h2>Plots!</h2>
-<h3>MSD</h3>
-{{msd_plot|safe}}
-<h3>Features</h3>
-{{features|safe}}
-
-<h3>Parallel Cords</h3>
-{{parallel_cords|safe}}
-
-<h2>Plots with Merged Data!</h2>
-<h3>Features Merged</h3>
-{{features_merged|safe}}
-
-<h3>Parallel Cords Merged</h3>
-{{parallel_cords_merged|safe}}
-
 {% endblock %}
 
 
@@ -62,4 +67,17 @@
 <script>
 
 </script>
+{% endblock %}
+
+{% block styles %}
+<style>
+    .feedback-option {
+        font-size: 18px;
+    }
+
+    .feedback-option input[type="radio"] {
+        transform: scale(1.5);
+        margin-right: 8px;
+    }
+</style>
 {% endblock %}
