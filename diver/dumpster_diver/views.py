@@ -260,3 +260,14 @@ def generatePitchPlot(df, wrapper):
     div = opy.plot(all_plots, auto_open=False, output_type="div")
     return div
     
+    buffer = BytesIO()
+    plt.savefig(buffer, format='png')
+    buffer.seek(0)
+    image_png = buffer.getvalue()
+    graph = base64.b64encode(image_png)
+    graph = graph.decode('utf-8')
+    buffer.close()
+    return graph
+
+class PitchDrop(ListView):
+    model = SongList
