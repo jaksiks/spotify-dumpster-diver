@@ -109,7 +109,9 @@ def index(request):
     user_dumpster_diver_features_df["popularity"] = user_tracks_df["popularity"]
     features_div = generate_feature_plot(msd_recs_df, spotify_recs_dumpster_features_df, user_dumpster_diver_features_df)
 
-    pitchChart = generatePitchPlot(pd.concat([spotify_recs_dumpster_features_df, user_tracks_df]), wrapper)
+    user_tracks_df["source"] = "User's Top Spotify Tracks"
+    spotify_recs_dumpster_features_df["source"] = "Spotify Recommendations"
+    pitchChart = generatePitchPlot(pd.concat([user_tracks_df, spotify_recs_dumpster_features_df]), wrapper)
 
     # Prepare the data to be passed to the frontend
     context = {
@@ -175,14 +177,12 @@ def generatePitchPlot(df, wrapper):
 
     all_plots = go.Figure()
     for idx in range(len(pitch_df)):
-        pitch_plot = go.Heatmap(arg=dict(z=pitch_df.iloc[idx]["pitches"],colorscale="Jet", showscale=False))
+        pitch_plot = go.Heatmap(arg=dict(z=pitch_df.iloc[idx]["pitches"],colorscale="Magenta", showscale=False))
         all_plots.add_trace(pitch_plot)
 
     # Update plot sizing
     all_plots.update_layout(
-        width=1500,
-        height=800,
-        autosize=False,
+        height=600,
         xaxis = dict(
         tickmode = 'array',
         tickvals = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
@@ -199,7 +199,9 @@ def generatePitchPlot(df, wrapper):
     
     for idx in range(len(pitch_df)):
         visibility = [False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False]
-        sname = pitch_df.iloc[idx]['name']
+        sname = "{} - {} - {}".format(pitch_df.iloc[idx]['source'],
+                                      pitch_df.iloc[idx]['name'],
+                                      pitch_df.iloc[idx]['artist'])
         visibility[idx] = True
         songList.append(
         dict(
