@@ -6,8 +6,13 @@ from django.shortcuts import render
 import os
 import pandas as pd
 import logging
+import numpy as np
 import copy
 from models.plot_features import generate_feature_plot
+import plotly.offline as opy
+import plotly.express as px
+import plotly.graph_objects as go
+
 
 # Create your views here.
 def index(request):
@@ -103,8 +108,8 @@ def index(request):
     spotify_recs_dumpster_features_df["popularity"] = spotify_recs_df["popularity"]
     user_dumpster_diver_features_df["popularity"] = user_tracks_df["popularity"]
     features_div = generate_feature_plot(msd_recs_df, spotify_recs_dumpster_features_df, user_dumpster_diver_features_df)
-    # msd_plot = wrapper.plot_msd()
-    # features, parallel_cords, features_merged, parallel_cords_merged  = wrapper.plot_song_data(tracks_df, recommendations_df)
+
+    pitchChart = generatePitchPlot(pd.concat([spotify_recs_dumpster_features_df, user_tracks_df]), wrapper)
 
     # Prepare the data to be passed to the frontend
     context = {
@@ -116,13 +121,9 @@ def index(request):
         'features_div': features_div,
         'pca_div0': pca_div0,
         'pca_div1': pca_div1,
-        'pca_div2': pca_div2
-        # 'msd_plot': msd_plot,
-        # 'features': features,
-        # 'parallel_cords': parallel_cords,
-        # 'features_merged': features_merged,
-        # 'parallel_cords_merged': parallel_cords_merged,
-        # 'pitch_network': pitch_network_df.to_html()
+        'pca_div2': pca_div2,
+        'pitch_network': pitchChart
+        
     }
 
     return render(request, 'dumpster_diver/index.html', context)
@@ -154,3 +155,78 @@ def clean_dataframe(df, tracks=False, rename_columns=None):
             cleaned_df[col] = cleaned_df[col].map(lambda x: profanity.censor(x))
 
     return cleaned_df
+
+
+def generatePitchPlot(df, wrapper):
+     #compile data for pitch network
+
+    pitch_df = df.copy()
+    audio_analysis_cols = ["pitches", "timbres"]
+
+    drop_columns = ['index', 'msd_id', 'loudness', 'artist_id', 'artist_familiarity', 'artist_hotttnesss', 'song_id',
+                    'year', 'energy', 'danceability', 'tempo', 'pitch_network_average_degree',
+                    'pitch_network_entropy', 'pitch_network_mean_clustering_coeff', 'timbre_00', 'timbre_01',
+                    'timbre_02', 'timbre_03', 'timbre_04', 'timbre_05', 'timbre_06', 'timbre_07', 'timbre_08',
+                    'timbre_09', 'timbre_10', 'timbre_11']
+
+    pitch_df = pitch_df.drop(labels=[col for col in drop_columns if col in pitch_df.columns], axis=1)
+
+    pitch_df[audio_analysis_cols] = pitch_df.apply(lambda x: wrapper.get_audio_analysis(x), axis=1)
+
+    all_plots = go.Figure()
+    for idx in range(len(pitch_df)):
+        pitch_plot = go.Heatmap(arg=dict(z=pitch_df.iloc[idx]["pitches"],colorscale="Jet", showscale=False))
+        all_plots.add_trace(pitch_plot)
+
+    # Update plot sizing
+    all_plots.update_layout(
+        width=1500,
+        height=800,
+        autosize=False,
+        xaxis = dict(
+        tickmode = 'array',
+        tickvals = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+        ticktext = ["C","C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "G#/Ab", "A", "A#/Bb", "B"]
+    ),
+        margin=dict(t=0, b=20, l=0, r=20),
+        template="plotly_dark",
+        xaxis_title="Pitch", yaxis_title="Time",
+        title="Choose Song to Display:",      
+
+    )
+    # Add dropdown
+    songList = []
+    
+    for idx in range(len(pitch_df)):
+        visibility = [False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False]
+        sname = pitch_df.iloc[idx]['name']
+        visibility[idx] = True
+        songList.append(
+        dict(
+            label = sname ,
+            method = 'update',
+            args = [{"visible": visibility}]
+            )) 
+        
+    all_plots.update_layout(
+        updatemenus=[
+            dict(
+                buttons=list(
+                    songList
+                ),
+                direction="down",
+                font={"color":"rgb(57,255,20)"},
+                pad={"r": 10, "t": 10},
+                showactive=True,
+                x=0.2,
+                xanchor="left",
+                y=1.1,
+                yanchor="top"
+            ),
+        ]
+    )
+
+    #  # Create the div
+    div = opy.plot(all_plots, auto_open=False, output_type="div")
+    return div
+    
