@@ -183,9 +183,10 @@ def generatePitchPlot(df, wrapper):
     # Update plot sizing
     all_plots.update_layout(
         height=600,
+        autosize=True,
         xaxis = dict(
         tickmode = 'array',
-        tickvals = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+        tickvals = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
         ticktext = ["C","C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "G#/Ab", "A", "A#/Bb", "B"]
     ),
         margin=dict(t=0, b=20, l=0, r=20),
