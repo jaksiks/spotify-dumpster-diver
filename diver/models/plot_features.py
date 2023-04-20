@@ -56,7 +56,7 @@ def subplot(final_MSD_recs, final_spo_recs, user_songs, features, row, col):
             name='User '+ feature,  # specify name for legend
             marker=dict(color='rgb(255, 255, 0)'),  # specify color for histogram bars
             opacity=0.7,  # specify opacity of histogram bars
-            hovertext=final_spo_recs["name"]
+            hovertext=user_songs["name"]
         )
 
         return trace1, trace2, trace3

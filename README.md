@@ -1,10 +1,29 @@
 # cse-6242-project
-CSE 6242 Group Project | Spotify Dumpster Diver
 
+```
+ _____             _   _  __        ______                           _             ______ _                
+/  ___|           | | (_)/ _|       |  _  \                         | |            |  _  (_)               
+\ `--. _ __   ___ | |_ _| |_ _   _  | | | |_   _ _ __ ___  _ __  ___| |_ ___ _ __  | | | |___   _____ _ __ 
+ `--. \ '_ \ / _ \| __| |  _| | | | | | | | | | | '_ ` _ \| '_ \/ __| __/ _ \ '__| | | | | \ \ / / _ \ '__|
+/\__/ / |_) | (_) | |_| | | | |_| | | |/ /| |_| | | | | | | |_) \__ \ ||  __/ |    | |/ /| |\ V /  __/ |   
+\____/| .__/ \___/ \__|_|_|  \__, | |___/  \__,_|_| |_| |_| .__/|___/\__\___|_|    |___/ |_| \_/ \___|_|   
+      | |                     __/ |                       | |                                              
+      |_|                    |___/                        |_|                                              
+```
+
+CSE 6242 Group Project | Spotify Dumpster Diver | Team 031
+
+# Description
+
+This is the "Spotify Dumpster Diver" project, a CSE 6242 Group Project by Team 031. This application uses features derived from the MillionSongDataset (MSD) and recommends “dumpster” finds, unpopular songs, based off of the user’s top Spotify songs. Additionally, the application provides an interactive web interface for users to explore and analyze various aspects of their Spotify listening habits and visualize the Dumpster Diver’s recommendations and compare them to the user’s songs and song’s Spotify would recommend.
+
+The Spotify Dumpster Diver was built using Python with a Django frontend and uses packages such as Pandas and SciKitLearn for the backend. Additionally, the Dumpster Diver uses spotipy to interface with the Spotify Developer API.
 
 # Installing Anaconda
 
-* On Windows Linux (WSL): https://gist.github.com/kauffmanes/5e74916617f9993bc3479f401dfec7da
+* Install Anaconda from https://www.anaconda.com/download/
+
+* NOTE: If on Windows Linux (WSL): https://gist.github.com/kauffmanes/5e74916617f9993bc3479f401dfec7da
 
 # Working with the Environment
 
@@ -63,7 +82,14 @@ conda env export --from-history>environment.yml
 
 ## config.yml
 
-* Put your ```config.yml``` file in the "spotify" directory in the following format:
+* Create Spotify Developer Account for API access:
+    - Visit the Spotify Developer Dashboard at https://developer.spotify.com/dashboard/applications.
+    - If you don't have a Spotify account yet, sign up for a free account by clicking the "Sign Up" button at the top-right corner of the page. If you already have a Spotify account, click the "Log In" button and enter your credentials.
+    - After logging in, click the "Create an App" button in the Spotify Developer Dashboard
+    - Fill out the "Create an App" form with the required information, such as the app name, description, and reasons for building the app. Agree to the terms and conditions, and then click "Create"
+    - Once your app is created, you will be redirected to the app's management page. Here, you will find your "Client ID" and "Client Secret" 
+    - Click on the "Edit Settings" button on the app management page. In the "Redirect URIs" field, add the following URI: http://localhost:8888/callback. Click "Save" at the bottom of the page.
+* Create / Update your ```config.yml``` file in the `cse-6242-project\diver\spotify` directory in the following format:
 
 ```
 spotify:
@@ -75,7 +101,7 @@ spotify:
 
 * Note that ```config.yml``` has been added to ```.gitignore```, and thus won't be tracked (everyone has their own config.yml for your own Spotify connection, for now)
 
-# Working with the Database
+# Working with the Database [OBE]
 
 ## Start PostgreSQL Docker Container
 
