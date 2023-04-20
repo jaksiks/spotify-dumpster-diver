@@ -46,10 +46,10 @@ def subplot(final_MSD_recs, final_spo_recs, user_songs, features, row, col):
             name='Spo '+ feature,  # specify name for legend
             marker=dict(color='rgb(74,206,110)'),  # specify color for histogram bars
             opacity=0.7,  # specify opacity of histogram bars
-            hovertext="name"
+            hovertext=final_spo_recs["name"]
         )
 
-        # Create histogram for Spotify dataframe
+        # Create histogram for user dataframe
         trace3 = go.Histogram(
             x=user_songs[feature],
             nbinsx=25,  # specify number of bins
