@@ -39,6 +39,13 @@ class SpotifyWrapper:
                                                             client_secret=self.client_secret,
                                                             redirect_uri=self.redirect_uri,
                                                             scope=scope))
+        # Store data in database - Use the (insecure) Marshal module.
+        # since we store the data and we do not let the user construct the
+        # data - it is perfectly secured.
+        # Note that this way we can store data such as media-files
+        await self._storage.set(key, marshal.dumps(data_to_store),
+                                expiration_in_seconds=expiration)
+        return key
 
 #    def get_user_recent_tracks(self, limit: int = 5) -> pd.DataFrame:
     def get_user_recent_tracks(self, top_tracks_limit: int = 5, recent_tracks_limit: int = 0) -> Tuple[pd.DataFrame, pd.DataFrame]:
